@@ -1,6 +1,7 @@
 import logging
 
 import requests
+from pif import get_public_ip
 
 # Local imports
 from accounts import accounts
@@ -99,8 +100,7 @@ def update_records_for_account(account, public_ip):
 
 
 def main():
-    # public_ip = get_public_ip()
-    public_ip = '73.180.113.81'
+    public_ip = get_public_ip()
     display_and_log('Public IP: {}'.format(public_ip))
 
     for account in accounts:
