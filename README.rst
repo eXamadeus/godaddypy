@@ -23,7 +23,7 @@ Update your accounts.py file with the new key information...
             'api_secret': '<your secret key>'
         }
     ]
-
+..
 
 TODOs
 --------
