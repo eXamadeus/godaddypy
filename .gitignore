@@ -60,3 +60,4 @@ target/
 # IntelliJ Config
 .idea
 godaddypy.iml
+accounts.py
