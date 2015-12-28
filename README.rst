@@ -12,7 +12,12 @@ Update your accounts.py file with the new key information...
 .. code-block:: python
 
     accounts = [
-        {
+        { # first account
+            'domains': [<domain to update>, ...],
+            'api_key': '<your public key>',
+            'api_secret': '<your secret key>'
+        },
+        { # second account
             'domains': [<domain to update>, ...],
             'api_key': '<your public key>',
             'api_secret': '<your secret key>'
