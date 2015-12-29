@@ -1,8 +1,9 @@
-/godaddypy.log
+# GoDaddyPy Stuff
+godaddypy/godaddypy.log
+#godaddypy/accounts.py
+
 # Byte-compiled / optimized / DLL files
 __pycache__/
-*.py[cod]
-
 # C extensions
 *.so
 
@@ -60,4 +61,3 @@ target/
 # IntelliJ Config
 .idea
 godaddypy.iml
-accounts.py
