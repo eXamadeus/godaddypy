@@ -6,14 +6,14 @@ _logger = logging.getLogger(__name__)
 
 
 class GoDaddyAPI(object):
-    _API_TEMPLATE = 'https://api.godaddy.com'
+    _API_TEMPLATE = 'https://api.godaddy.com/v1'
 
-    _GET_DOMAINS = '/v1/domains'
-    _GET_DOMAIN = '/v1/domains/{domain}'
-    _GET_RECORDS_TYPE_NAME = '/v1/domains/{domain}/records/{type}/@'
-    _PUT_RECORDS_TYPE_NAME = '/v1/domains/{domain}/records/{type}/{name}'
-    _PATCH_RECORDS = '/v1/domains/{domain}/records'
-    _PUT_RECORDS = '/v1/domains/{domain}/records'
+    _GET_DOMAINS = '/domains'
+    _GET_DOMAIN = '/domains/{domain}'
+    _GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/@'
+    _PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
+    _PATCH_RECORDS = '/domains/{domain}/records'
+    _PUT_RECORDS = '/domains/{domain}/records'
     _SSO_KEY_TEMPLATE = 'sso-key {api_key}:{api_secret}'
 
     def discover_domains(self, account):
