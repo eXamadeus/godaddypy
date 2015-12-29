@@ -4,6 +4,8 @@ import requests
 
 _logger = logging.getLogger(__name__)
 
+__all__ = ['GoDaddyAPI']
+
 
 class GoDaddyAPI(object):
     _API_TEMPLATE = 'https://api.godaddy.com/v1'
@@ -36,6 +38,9 @@ class GoDaddyAPI(object):
     def _display_and_log(message):
         print(message)
         _logger.info(message)
+
+    def get_api_url(self):
+        return self._API_TEMPLATE
 
     def _get_auth_headers(self, account):
         return {
@@ -80,12 +85,12 @@ class GoDaddyAPI(object):
     def _remove_key_from_dict(dictionary, key_to_remove):
         return {key: value for key, value in dictionary.items() if key != key_to_remove}
 
-    def update_records_for_account(self, account, public_ip):
+    def update_records_for_account(self, account, ip):
         for domain in self.discover_domains(account):
             records = self.get_domain_a_records(account, domain)
 
             for record in records:
-                data = {'data': public_ip}
+                data = {'data': ip}
                 record.update(data)
 
             self.put_new_a_records(account, domain, records)
