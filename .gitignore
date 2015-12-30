@@ -1,5 +1,6 @@
 # GoDaddyPy Stuff
 godaddypy/godaddypy.log
+godaddypy/accounts.py
 
 # Byte-compiled / optimized / DLL files
 __pycache__/
