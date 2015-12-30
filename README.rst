@@ -5,24 +5,21 @@ Python library useful for updating DNS settings through the GoDaddy v1 API (Upda
 Setup
 --------
 
-First go to https://developer.godaddy.com/keys/ and request a production API key.
+First go to https://developer.godaddy.com/keys/ and request a production API key and secret.
 
-Update your accounts.py file with the new key information...
+Example
+--------
+
 
 .. code-block:: python
 
-    accounts = [
-        { # first account
-            'domains': [<domain to update>, ...],
-            'api_key': '<your public key>',
-            'api_secret': '<your secret key>'
-        },
-        { # second account
-            'domains': [<domain to update>, ...],
-            'api_key': '<your public key>',
-            'api_secret': '<your secret key>'
-        }
-    ]
+    >>> from godaddypy import Account, GoDaddyAPI
+    >>> my_acct = Account('PUBLIC_KEY','SECRET_KEY')
+    >>>
+    >>> client = GoDaddyAPI(my_acct)
+    >>> client.get_domains()
+    ['abc.com', '123.info']
+    >>>
 ..
 
 TODOs
