@@ -7,7 +7,7 @@ Setup
 
 First go to https://developer.godaddy.com/keys/ and request a production API key and secret.
 
-Example
+Examples
 --------
 
 
