@@ -27,11 +27,6 @@ def _log(message):
     logging.info(message)
 
 
-def _log_and_print(message):
-    print(message)
-    _log(message)
-
-
 def _log_response_from_method(req_type, func_name, resp):
     logging.info('[{req_type}] {func_name} response: {resp}'.format(func_name=func_name, resp=resp,
                                                                     req_type=req_type.upper()))
@@ -95,14 +90,14 @@ class GoDaddyAPI(object):
         url = self._API_TEMPLATE + self._GET_RECORDS_TYPE_NAME.format(domain=domain, type='A')
         data = _get(url, method_name=self.get_a_records.__name__, headers=self._get_headers()).json()
 
-        _log_and_print('Retrieved {} records from {}.'.format(len(data), domain))
+        _log('Retrieved {} records from {}.'.format(len(data), domain))
 
         return data
 
     def put_new_a_records(self, domain, records):
         url = self._API_TEMPLATE + self._PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name='@')
         _put(url, json=records, method_name=self.get_a_records.__name__, headers=self._get_headers())
-        _log_and_print('Updated {} records @ {}'.format(len(records), domain))
+        _log('Updated {} records @ {}'.format(len(records), domain))
 
     def update_ip(self, ip):
         for domain in self.get_domains():
