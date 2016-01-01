@@ -1,5 +1,5 @@
-from .client import GoDaddyAPI
+from .client import GoDaddyClient
 from .account import Account
 
 __version__ = '0.0.1'
-__all__ = ['GoDaddyAPI', 'Account', '__version__']
+__all__ = ['GoDadddyClient', 'Account', '__version__']

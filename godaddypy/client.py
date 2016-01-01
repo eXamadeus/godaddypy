@@ -2,11 +2,11 @@ import logging
 
 import requests
 
-__all__ = ['GoDaddyAPI']
+__all__ = ['GoDaddyClient']
 
-logging.basicConfig(filename=__name__ + '.log',
+logging.basicConfig(filename='GoDaddyClient.log',
                     filemode='a',
-                    level=logging.DEBUG)
+                    level=logging.INFO)
 
 
 def _get(url, method_name, **kwargs):
@@ -42,7 +42,7 @@ def _validate_response_success(response):
         raise BadResponse(response.json())
 
 
-class GoDaddyAPI(object):
+class GoDaddyClient(object):
     _API_TEMPLATE = 'https://api.godaddy.com/v1'
 
     _GET_DOMAINS = '/domains'
@@ -60,7 +60,7 @@ class GoDaddyAPI(object):
     def _get_headers(self):
         return self._account.get_auth_headers()
 
-    def scope_control_account(self, account):
+    def _scope_control_account(self, account):
         if account is None:
             return self._account
         else:
@@ -100,6 +100,7 @@ class GoDaddyAPI(object):
         _log('Updated {} records @ {}'.format(len(records), domain))
 
     def update_ip(self, ip):
+        """Update the IP address in all A records to the value of `ip`"""
         for domain in self.get_domains():
             records = self.get_a_records(domain)
 
