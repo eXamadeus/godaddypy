@@ -99,9 +99,12 @@ class GoDaddyClient(object):
         _put(url, json=records, method_name=self.get_a_records.__name__, headers=self._get_headers())
         _log('Updated {} records @ {}'.format(len(records), domain))
 
-    def update_ip(self, ip):
+    def update_ip(self, ip, domains=None):
         """Update the IP address in all A records to the value of `ip`"""
-        for domain in self.get_domains():
+        if domains is None:
+            domains = self.get_domains()
+
+        for domain in domains:
             records = self.get_a_records(domain)
 
             for record in records:
