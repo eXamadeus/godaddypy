@@ -20,7 +20,6 @@ Second, install GoDaddyPy with pip
 Examples
 --------
 
-
 .. code-block:: python
 
     >>> from godaddypy import Account, GoDaddyClient
@@ -39,3 +38,4 @@ TODOs
 
 - Add more record support (currently only supports 'A' records)
 - Make the code suck less (this is my first python script)
+- Add unit testing
