@@ -7,6 +7,14 @@ Setup
 
 First go to https://developer.godaddy.com/keys/ and request a production API key and secret.
 
+Second install GoDaddyPy with pip.
+
+.. code-block:: bash
+
+    $ pip install godaddypy
+
+..
+
 Examples
 --------
 
