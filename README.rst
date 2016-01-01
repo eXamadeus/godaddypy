@@ -13,10 +13,10 @@ Examples
 
 .. code-block:: python
 
-    >>> from godaddypy import Account, GoDaddyAPI
+    >>> from godaddypy import Account, GoDaddyClient
     >>> my_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY')
     >>>
-    >>> client = GoDaddyAPI(my_acct)
+    >>> client = GoDaddyClient(my_acct)
     >>> client.get_domains()
     ['abc.com', '123.info']
     >>> client.get_a_records(client.get_domains()[0])
