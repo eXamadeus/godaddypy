@@ -26,11 +26,17 @@ Examples
     >>> my_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY')
     >>>
     >>> client = GoDaddyClient(my_acct)
-    >>> client.get_domains()
+    >>> my_domains = client.get_domains()
+    >>> my_domains
     ['abc.com', '123.info']
-    >>> client.get_a_records(client.get_domains()[0])
-    [{'type': 'A', 'name': '@', 'ttl': 3600, 'data': '255.255.255.255'}]
     >>>
+    >>> client.get_a_records('abc.com')
+    [{'name': '@', 'ttl': 3600, 'data': '255.255.255.255', 'type': 'A'}]
+    >>>
+    >>> client.update_ip('1.1.1.1', domains=['abc.com'])
+    >>>
+    >>> client.get_a_records('abc.com')
+    [{'name': '@', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'}]
 ..
 
 TODOs

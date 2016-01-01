@@ -100,7 +100,8 @@ class GoDaddyClient(object):
         _log('Updated {} records @ {}'.format(len(records), domain))
 
     def update_ip(self, ip, domains=None):
-        """Update the IP address in all A records to the value of `ip`"""
+        """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occured during
+        the update"""
         if domains is None:
             domains = self.get_domains()
 
@@ -112,6 +113,9 @@ class GoDaddyClient(object):
                 record.update(data)
 
             self.put_new_a_records(domain, records)
+
+        # If we didn't get any exceptions, return True to let the user know
+        return True
 
 
 class BadResponse(Exception):
