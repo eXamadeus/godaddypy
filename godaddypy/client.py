@@ -43,14 +43,14 @@ def _validate_response_success(response):
 
 
 class GoDaddyAPI(object):
-    _API_TEMPLATE = 'https://api.godaddy.com/v1'
+    API_TEMPLATE = 'https://api.godaddy.com/v1'
 
-    _GET_DOMAINS = '/domains'
-    _GET_DOMAIN = '/domains/{domain}'
-    _GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/@'
-    _PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
-    _PATCH_RECORDS = '/domains/{domain}/records'
-    _PUT_RECORDS = '/domains/{domain}/records'
+    GET_DOMAINS = '/domains'
+    GET_DOMAIN = '/domains/{domain}'
+    GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/@'
+    PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
+    PATCH_RECORDS = '/domains/{domain}/records'
+    PUT_RECORDS = '/domains/{domain}/records'
 
     _account = None
 
@@ -67,7 +67,7 @@ class GoDaddyAPI(object):
             return account
 
     def get_domains(self):
-        url = self._API_TEMPLATE + self._GET_DOMAINS
+        url = self.API_TEMPLATE + self.GET_DOMAINS
         data = _get(url, method_name=self.get_domains.__name__, headers=self._get_headers()).json()
 
         domains = list()
@@ -80,14 +80,14 @@ class GoDaddyAPI(object):
         return domains
 
     def get_api_url(self):
-        return self._API_TEMPLATE
+        return self.API_TEMPLATE
 
     def get_domain_info(self, domain):
-        url = self._API_TEMPLATE + self._GET_DOMAIN.format(domain=domain)
+        url = self.API_TEMPLATE + self.GET_DOMAIN.format(domain=domain)
         return _get(url, method_name=self.get_domain_info.__name__, headers=self._get_headers()).json()
 
     def get_a_records(self, domain):
-        url = self._API_TEMPLATE + self._GET_RECORDS_TYPE_NAME.format(domain=domain, type='A')
+        url = self.API_TEMPLATE + self.GET_RECORDS_TYPE_NAME.format(domain=domain, type='A')
         data = _get(url, method_name=self.get_a_records.__name__, headers=self._get_headers()).json()
 
         _log('Retrieved {} records from {}.'.format(len(data), domain))
@@ -95,7 +95,7 @@ class GoDaddyAPI(object):
         return data
 
     def put_new_a_records(self, domain, records):
-        url = self._API_TEMPLATE + self._PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name='@')
+        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name='@')
         _put(url, json=records, method_name=self.get_a_records.__name__, headers=self._get_headers())
         _log('Updated {} records @ {}'.format(len(records), domain))
 
