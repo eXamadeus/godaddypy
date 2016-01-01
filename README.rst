@@ -4,11 +4,6 @@ Python library useful for updating DNS settings through the GoDaddy v1 API (Upda
 
 This concept was spawned from pygodaddy @ https://github.com/observerss/pygodaddy.
 
-Requirements
---------
-
-The `requests` library is required for GoDaddyPy.  `pip` will handle the installation.
-
 Setup
 --------
 
