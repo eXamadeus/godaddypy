@@ -22,10 +22,11 @@ Examples
 
 .. code-block:: python
 
-    >>> from godaddypy import Account, GoDaddyClient
-    >>> my_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY')
+    >>> from godaddypy
     >>>
-    >>> client = GoDaddyClient(my_acct)
+    >>> my_acct = godaddypy.Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY')
+    >>> client = godaddypy.Client(my_acct)
+    >>>
     >>> my_domains = client.get_domains()
     >>> my_domains
     ['abc.com', '123.info']

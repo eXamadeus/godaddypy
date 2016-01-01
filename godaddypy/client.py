@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-__all__ = ['GoDaddyClient']
+__all__ = ['Client']
 
 logging.basicConfig(filename='GoDaddyClient.log',
                     filemode='a',
@@ -42,7 +42,7 @@ def _validate_response_success(response):
         raise BadResponse(response.json())
 
 
-class GoDaddyClient(object):
+class Client(object):
     _API_TEMPLATE = 'https://api.godaddy.com/v1'
 
     _GET_DOMAINS = '/domains'
