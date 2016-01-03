@@ -99,10 +99,8 @@ class Client(object):
         _log('Updated {} records @ {}'.format(len(records), domain))
 
     def update_ip(self, ip, domains=None):
-        """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occured during
-        the update.
-
-        If no domains are provided, all domains will be updated.
+        """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occurred during
+        the update.  If no domains are provided, all domains returned from self.get_domains() will be updated.
         """
         if domains is None:
             domains = self.get_domains()
