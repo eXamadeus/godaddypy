@@ -2,9 +2,11 @@
 
 from setuptools import setup
 
+from godaddypy import __version__
+
 
 setup(name='GoDaddyPy',
-      version='0.1.2',
+      version=__version__,
       description='A very simple python client used to update the IP address in A records for GoDaddy managed domains.',
       author='Julian Coy',
       author_email='julian.calvin.coy@gmail.com',
