@@ -4,7 +4,7 @@ from setuptools import setup
 
 
 setup(name='GoDaddyPy',
-      version='0.1.1',
+      version='0.1.2',
       description='A very simple python client used to update the IP address in A records for GoDaddy managed domains.',
       author='Julian Coy',
       author_email='julian.calvin.coy@gmail.com',
@@ -19,10 +19,11 @@ setup(name='GoDaddyPy',
           'Topic :: Internet :: Name Service (DNS)',
           'License :: OSI Approved :: BSD License',
           'Natural Language :: English',
+          'Programming Language :: Python :: 2',
+          'Programming Language :: Python :: 2.7',
           'Programming Language :: Python :: 3',
           'Programming Language :: Python :: 3.2',
           'Programming Language :: Python :: 3.3',
           'Programming Language :: Python :: 3.4',
-          'Programming Language :: Python :: 3.5',
-          'Programming Language :: Python :: 3 :: Only'
+          'Programming Language :: Python :: 3.5'
       ])

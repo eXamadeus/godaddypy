@@ -27,9 +27,8 @@ def _log(message):
     logging.info(message)
 
 
-def _log_response_from_method(req_type, func_name, resp):
-    logging.info('[{req_type}] {func_name} response: {resp}'.format(func_name=func_name, resp=resp,
-                                                                    req_type=req_type.upper()))
+def _log_response_from_method(req_type, resp):
+    logging.info('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
     logging.debug('Response data: {}'.format(resp.content))
 
 
