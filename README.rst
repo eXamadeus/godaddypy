@@ -9,8 +9,7 @@ Setup
 
 First, go to https://developer.godaddy.com/keys/ and request a production API key and secret.
 
-*Note: Sometimes the production API keys don't seem to work correctly.  Just delete it and make another one if that is
-the case.*
+*Note: Sometimes the production API keys don't seem to work correctly.  Just delete it and request another one.*
 
 Second, install GoDaddyPy with pip.
 
