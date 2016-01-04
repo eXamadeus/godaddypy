@@ -36,3 +36,4 @@ docs/_build/
 # IntelliJ Config
 .idea
 godaddypy.iml
+.cache/
