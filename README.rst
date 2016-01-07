@@ -46,5 +46,5 @@ TODOs
 --------
 
 - Add more record support (currently only supports 'A' records)
-- Make the code suck less (this is my first python script)
+- Make the code suck less (this is my time writing python)
 - Add unit testing
