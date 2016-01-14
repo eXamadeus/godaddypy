@@ -32,7 +32,7 @@ class Client(object):
         self.account = account
 
     @staticmethod
-    def _log_response_from_method(req_type, resp):
+    def _log_response_from_method(self, req_type, resp):
         logging.info('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
         logging.debug('Response data: {}'.format(resp.content))
 
