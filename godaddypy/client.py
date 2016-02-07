@@ -24,7 +24,7 @@ class Client(object):
 
         self.GET_DOMAINS = '/domains'
         self.GET_DOMAIN = '/domains/{domain}'
-        self.GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/@'
+        self.GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/'
         self.PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
         self.PATCH_RECORDS = '/domains/{domain}/records'
         self.PUT_RECORDS = '/domains/{domain}/records'
