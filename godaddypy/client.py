@@ -10,18 +10,21 @@ class Client(object):
 
     This client is used to connect to the GoDaddy API and to perform requests with said API.
     """
-    logging.basicConfig(filemode='a',
-                        level=logging.INFO)
 
-    def __init__(self, account):
+    def __init__(self, account, logging_handler=logging.StreamHandler()):
         """Create a new `godaddypy.Client` object
 
         :type account: godaddypy.Account
         :param account: The godaddypy.Account object to create auth headers with.
         """
 
-        self.API_TEMPLATE = 'https://api.godaddy.com/v1'
+        # Logging setup
+        self.logger = logging.getLogger(__name__)
+        logging_handler.setLevel(logging.INFO)
+        self.logger.addHandler(logging_handler)
 
+        # Templates
+        self.API_TEMPLATE = 'https://api.godaddy.com/v1'
         self.GET_DOMAINS = '/domains'
         self.GET_DOMAIN = '/domains/{domain}'
         self.GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/@'
@@ -31,10 +34,9 @@ class Client(object):
 
         self.account = account
 
-    @staticmethod
     def _log_response_from_method(self, req_type, resp):
-        logging.info('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
-        logging.debug('Response data: {}'.format(resp.content))
+        self.logger.info('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
+        self.logger.debug('Response data: {}'.format(resp.content))
 
     @staticmethod
     def _remove_key_from_dict(dictionary, key_to_remove):
@@ -45,7 +47,7 @@ class Client(object):
         if response.status_code != 200:
             raise BadResponse(response.json())
 
-    def _get(self, url, method_name, **kwargs):
+    def _get(self, url, **kwargs):
         resp = requests.get(url, **kwargs)
         self._log_response_from_method('get', resp)
         self._validate_response_success(resp)
@@ -54,7 +56,7 @@ class Client(object):
     def _get_headers(self):
         return self.account.get_auth_headers()
 
-    def _put(self, url, method_name, **kwargs):
+    def _put(self, url, **kwargs):
         resp = requests.put(url, **kwargs)
         self._log_response_from_method('put', resp)
         self._validate_response_success(resp)
@@ -68,14 +70,14 @@ class Client(object):
 
     def get_domains(self):
         url = self.API_TEMPLATE + self.GET_DOMAINS
-        data = self._get(url, method_name=self.get_domains.__name__, headers=self._get_headers()).json()
+        data = self._get(url, headers=self._get_headers()).json()
 
         domains = list()
         for item in data:
             domain = item['domain']
             if item['status'] == 'ACTIVE':
                 domains.append(domain)
-                logging.info('Discovered domains: {}'.format(domain))
+                self.logger.info('Discovered domains: {}'.format(domain))
 
         return domains
 
@@ -90,20 +92,20 @@ class Client(object):
         :type domain: str
         """
         url = self.API_TEMPLATE + self.GET_DOMAIN.format(domain=domain)
-        return self._get(url, method_name=self.get_domain_info.__name__, headers=self._get_headers()).json()
+        return self._get(url, headers=self._get_headers()).json()
 
     def get_a_records(self, domain):
         url = self.API_TEMPLATE + self.GET_RECORDS_TYPE_NAME.format(domain=domain, type='A')
-        data = self._get(url, method_name=self.get_a_records.__name__, headers=self._get_headers()).json()
+        data = self._get(url, headers=self._get_headers()).json()
 
-        logging.info('Retrieved {} records from {}.'.format(len(data), domain))
+        self.logger.info('Retrieved {} records from {}.'.format(len(data), domain))
 
         return data
 
     def put_new_a_records(self, domain, records):
         url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name='@')
-        self._put(url, json=records, method_name=self.get_a_records.__name__, headers=self._get_headers())
-        logging.info('Updated {} records @ {}'.format(len(records), domain))
+        self._put(url, json=records, headers=self._get_headers())
+        self.logger.info('Updated {} records @ {}'.format(len(records), domain))
 
     def update_ip(self, ip, domains=None):
         """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occurred during
