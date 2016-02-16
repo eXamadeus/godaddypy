@@ -29,8 +29,7 @@ Examples
     >>> my_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY')
     >>> client = Client(my_acct)
     >>>
-    >>> my_domains = client.get_domains()
-    >>> my_domains
+    >>> client.get_domains()
     ['abc.com', '123.info']
     >>>
     >>> client.get_a_records('abc.com')
