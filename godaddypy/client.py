@@ -27,7 +27,7 @@ class Client(object):
         self.API_TEMPLATE = 'https://api.godaddy.com/v1'
         self.GET_DOMAINS = '/domains'
         self.GET_DOMAIN = '/domains/{domain}'
-        self.GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/@'
+        self.GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/'
         self.PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
         self.PATCH_RECORDS = '/domains/{domain}/records'
         self.PUT_RECORDS = '/domains/{domain}/records'
@@ -102,32 +102,53 @@ class Client(object):
 
         return data
 
-    def put_new_a_records(self, domain, records):
-        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name='@')
-        self._put(url, json=records, headers=self._get_headers())
-        self.logger.info('Updated {} records @ {}'.format(len(records), domain))
+    def put_a_records(self, domain, records):
+        for _rec in records:
+            url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name=_rec['name'])
+            self._put(url, json=_rec, method_name=self.get_a_records.__name__, headers=self._get_headers())
+            logging.info('Updated {} records @ {}'.format(len(records), domain))
 
-    def update_ip(self, ip, domains=None):
+    def update_ip(self, ip, domains=None, subdomains=None):
         """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occurred during
         the update.  If no domains are provided, all domains returned from self.get_domains() will be updated.
 
         :param ip: The new IP address (eg. '123.1.2.255')
         :param domains: A list of the domains you want to update (eg. ['123.com','abc.net'])
+        :param subdomains: A list of the subdomains you want to update (eg. ['www','dev'])
 
         :type ip: str
-        :type domains: list of str
+        :type domains: str, list of str
+        :type subdomains: str, list of str
         """
+
         if domains is None:
             domains = self.get_domains()
+        elif type(domains) == str:
+            domains = [domains]
+        elif type(domains) == list:
+            pass
+        else:
+            raise SystemError("Domains must be type 'list' or type 'str'")
 
         for domain in domains:
             records = self.get_a_records(domain)
-
+            new_records = []
             for record in records:
-                data = {'data': ip}
-                record.update(data)
+                r_name = str(record['name'])
+                r_ip = str(record['data'])
 
-            self.put_new_a_records(domain, records)
+                if not r_ip == ip:
+
+                    if ((subdomains is None) or
+                            (type(subdomains) == list and subdomains.count(r_name)) or
+                            (type(subdomains) == str and subdomains == r_name)):
+
+                        data = {'data': unicode(ip)}
+                        record.update(data)
+
+                        new_records.append(record)
+
+            self.put_a_records(domain, new_records)
 
         # If we didn't get any exceptions, return True to let the user know
         return True
