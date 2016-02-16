@@ -20,8 +20,6 @@ class Account(object):
         :type api_secret: str
         :param api_secret: The API_SECRET provided by GoDaddy
         """
-        if not api_key or not api_secret:
-            raise SystemError('You must provide an API Key and Secret!')
 
         self._api_key = api_key
         self._api_secret = api_secret
