@@ -2,7 +2,8 @@ GoDaddyPy
 ==========
 Python library useful for updating DNS settings through the GoDaddy v1 API (Updated as of 12/26/15).
 
-This concept was spawned from pygodaddy @ https://github.com/observerss/pygodaddy.
+Source located @ https://github.com/eXamadeus/godaddypy
+This concept was spawned from observerss' pygodaddy @ https://github.com/observerss/pygodaddy.
 
 Setup
 --------
