@@ -105,7 +105,7 @@ class Client(object):
     def put_a_records(self, domain, records):
         for _rec in records:
             url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name=_rec['name'])
-            self._put(url, json=_rec, method_name=self.get_a_records.__name__, headers=self._get_headers())
+            self._put(url, json=_rec, headers=self._get_headers())
             logging.info('Updated {} records @ {}'.format(len(records), domain))
 
     def update_ip(self, ip, domains=None, subdomains=None):
