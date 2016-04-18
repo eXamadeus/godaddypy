@@ -143,7 +143,7 @@ class Client(object):
                             (type(subdomains) == list and subdomains.count(r_name)) or
                             (type(subdomains) == str and subdomains == r_name)):
 
-                        data = {'data': unicode(ip)}
+                        data = {'data': str(ip)}
                         record.update(data)
 
                         new_records.append(record)
@@ -157,7 +157,7 @@ class Client(object):
 class BadResponse(Exception):
     def __init__(self, message, *args, **kwargs):
         self._message = message
-        super(*args, **kwargs)
+        super(BadResponse, *args, **kwargs)
 
     def __str__(self, *args, **kwargs):
         return 'Response Data: {}'.format(self._message)
