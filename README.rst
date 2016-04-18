@@ -1,5 +1,7 @@
 GoDaddyPy
 ==========
+https://travis-ci.org/eXamadeus/godaddypy.svg?branch=master
+
 Python library useful for updating DNS settings through the GoDaddy v1 API.
 
 Source located @ https://github.com/eXamadeus/godaddypy
