@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-__all__ = ['Client', 'BadResponse']
+__all__ = ['Client']
 
 
 class Client(object):
