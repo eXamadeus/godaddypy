@@ -2,7 +2,7 @@ import logging
 
 import requests
 
-__all__ = ['Client']
+__all__ = ['Client', 'BadResponse']
 
 
 class Client(object):
@@ -31,6 +31,7 @@ class Client(object):
         self.PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
         self.PATCH_RECORDS = '/domains/{domain}/records'
         self.PUT_RECORDS = '/domains/{domain}/records'
+        self.GET_DOMAIN_PURCHASE_SCHEMA = '/domains/purchase/schema/{tld}'
 
         self.account = account
 
@@ -81,6 +82,17 @@ class Client(object):
 
         return domains
 
+    def get_domain_schema(self, tld='com'):
+        """Get the purchase request schema for a specified top level domain (tld)
+
+        :param tld: The top level domain (ex: 'com', 'edu', 'gov')
+        :type tld: str
+
+        :return: The purchase request schema as a JSON string
+        """
+        url = self.API_TEMPLATE + self.GET_DOMAIN_PURCHASE_SCHEMA.format(tld=tld)
+        return self._get(url=url, headers=self._get_headers()).json()
+
     def get_api_url(self):
         return self.API_TEMPLATE
 
@@ -88,8 +100,9 @@ class Client(object):
         """Get the GoDaddy supplied information about a specific domain.
 
         :param domain: The domain to obtain info about.
-
         :type domain: str
+
+        :return A JSON string representing the domain information
         """
         url = self.API_TEMPLATE + self.GET_DOMAIN.format(domain=domain)
         return self._get(url, headers=self._get_headers()).json()
@@ -142,7 +155,6 @@ class Client(object):
                     if ((subdomains is None) or
                             (type(subdomains) == list and subdomains.count(r_name)) or
                             (type(subdomains) == str and subdomains == r_name)):
-
                         data = {'data': str(ip)}
                         record.update(data)
 
