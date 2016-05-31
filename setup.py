@@ -16,8 +16,9 @@ setup(name='GoDaddyPy',
           'requests>=2.4'
       ],
       classifiers=[
-          'Development Status :: 4 - Beta',
+          'Development Status :: 5 - Production/Stable',
           'Intended Audience :: Developers',
+          'Intended Audience :: System Administrators',
           'Topic :: Internet :: Name Service (DNS)',
           'License :: OSI Approved :: BSD License',
           'Natural Language :: English',
