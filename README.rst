@@ -1,9 +1,8 @@
-GoDaddyPy
-==========
 .. image:: https://travis-ci.org/eXamadeus/godaddypy.svg?branch=master
     :target: https://travis-ci.org/eXamadeus/godaddypy
 
-
+GoDaddyPy
+==========
 Python library useful for updating DNS settings through the GoDaddy v1 API.
 
 Source located @ https://github.com/eXamadeus/godaddypy
@@ -36,15 +35,23 @@ Examples
     >>> client = Client(my_acct)
     >>>
     >>> client.get_domains()
-    ['abc.com', '123.info']
+    ['domain1.example', 'domain2.example']
     >>>
-    >>> client.get_a_records('abc.com')
-    [{'name': '@', 'ttl': 3600, 'data': '255.255.255.255', 'type': 'A'}]
+    >>> client.get_a_records('domain1.example')
+    [{'name': 'dynamic', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'}]
     >>>
-    >>> client.update_ip('1.1.1.1', domains=['abc.com'])
+    >>> client.update_ip('2.2.2.2', domains=['domain1.example'])
     >>>
-    >>> client.get_a_records('abc.com')
-    [{'name': '@', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'}]
+    >>> client.get_a_records('domain1.example')
+    [{'name': 'dynamic', 'ttl': 3600, 'data': '2.2.2.2', 'type': 'A'}]
+    >>>
+    >>> client.get_record('domain1.example', 'dynamic', 'A')
+    {'name': 'dynamic', 'ttl': 3600, 'data': '2.2.2.2', 'type': 'A'}
+    >>>
+    >>> client.update_record_ip('3.3.3.3', 'domain1.example', 'dynamic', 'A')
+    >>>
+    >>> client.get_record('domain1.example', 'dynamic', 'A')
+    {'name': 'dynamic', 'ttl': 3600, 'data': '3.3.3.3', 'type': 'A'}
 ..
 
 TODOs
