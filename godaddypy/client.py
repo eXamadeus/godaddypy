@@ -121,6 +121,13 @@ class Client(object):
             self._put(url, json=_rec, headers=self._get_headers())
             logging.info('Updated {} records @ {}'.format(len(records), domain))
 
+    def put_records(self, record_type, domain, records):
+        for _rec in records:
+            url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record_type,
+                                                                        name=_rec['name'])
+            self._put(url, json=_rec, headers=self._get_headers())
+            logging.info('Updated {} records @ {}'.format(len(records), domain))
+
     def update_ip(self, ip, domains=None, subdomains=None):
         """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occurred during
         the update.  If no domains are provided, all domains returned from self.get_domains() will be updated.
