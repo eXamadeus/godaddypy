@@ -173,16 +173,14 @@ class Client(object):
         # If we didn't get any exceptions, return True to let the user know
         return True
 
-    def get_record(self, domain, name, type):
+    def get_record(self, domain, name, record_type):
         """Returns information from a single DNS record."""
-        url = self.API_TEMPLATE +\
-              self.GET_RECORD_TYPE_NAME.format(domain = domain, type = type,
-                                               name = name)
-        data = self._get(url, headers = self._get_headers()).json()
+        url = self.API_TEMPLATE + self.GET_RECORD_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+        data = self._get(url, headers=self._get_headers()).json()
         self.logger.info('Retrieved {} record from {}.'.format(len(data), domain))
         return data[0]
 
-    def update_record_ip(self, ip, domain, name, type):
+    def update_record_ip(self, ip, domain, name, record_type):
         """Update the IP address for a single record
 
         ip -- the new IP for the DNS record (ex. '123.1.2.255')
@@ -191,7 +189,7 @@ class Client(object):
         type -- Record type (ex. 'CNAME', 'A'...)
         """
 
-        record = self.get_record(domain, name, type)
+        record = self.get_record(domain, name, record_type)
         data = {'data': str(ip)}
         record.update(data)
         self._put_record(domain, record)
@@ -206,11 +204,11 @@ class Client(object):
         record -- dict with record info (ex. {'name': 'dynamic', 'ttl': 3600,
                   'data': '1.1.1.1', 'type': 'A'})
         """
-        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(\
-            domain = domain, type = record['type'], name = record['name'])
-        self._put(url, json = record, headers = self._get_headers())
-        logging.info('Updated record. Domain {} name {} type {}'.\
-                     format(domain, record['name'], record['type']))
+        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record['type'],
+                                                                    name=record['name'])
+        self._put(url, json=record, headers=self._get_headers())
+        logging.info('Updated record. Domain {} name {} type {}'.format(domain, record['name'], record['type']))
+
 
 class BadResponse(Exception):
     def __init__(self, message, *args, **kwargs):
