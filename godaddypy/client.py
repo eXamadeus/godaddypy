@@ -186,7 +186,7 @@ class Client(object):
         ip -- the new IP for the DNS record (ex. '123.1.2.255')
         domain -- the domain where the DNS belongs to (ex. 'example.com')
         name -- the DNS record name to be updated (ex. 'dynamic')
-        type -- Record type (ex. 'CNAME', 'A'...)
+        record_type -- Record type (ex. 'CNAME', 'A'...)
         """
 
         record = self.get_record(domain, name, record_type)
