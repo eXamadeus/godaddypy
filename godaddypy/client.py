@@ -1,4 +1,5 @@
 import logging
+import sys
 
 import requests
 
@@ -169,7 +170,10 @@ class Client(object):
 
         if domains is None:
             domains = self.get_domains()
-        elif type(domains) == str or type(domains) == unicode:
+        elif sys.version_info < (3, 0):
+            if type(domains) == str or type(domains) == unicode:
+                domains = [domains]
+        elif sys.version_info >= (3, 0) and type(domains) == str:
             domains = [domains]
         elif type(domains) == list:
             pass
