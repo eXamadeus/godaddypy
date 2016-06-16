@@ -47,10 +47,11 @@ Examples
     [{'name': 'dynamic', 'ttl': 3600, 'data': '2.2.2.2', 'type': 'A'}, {'name': 'dynamic', 'ttl': 3600, 'data': '::1',
     'type': 'AAAA'},]
     >>>
-    >>> client.get_records(dom, record_type='A', name='@')
+    >>> client.get_records('apple.com', record_type='A', name='@')
     [{u'data': u'1.2.3.4', u'type': u'A', u'name': u'@', u'ttl': 3600}]
     >>>
     >>> client.update_record_ip('3.3.3.3', 'domain1.example', 'dynamic', 'A')
+    True
     >>>
     >>> client.add_record('apple.com', {'data':'1.2.3.4','name':'test','ttl':3600, 'type':'A'})
     True
