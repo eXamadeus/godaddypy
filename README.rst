@@ -37,21 +37,25 @@ Examples
     >>> client.get_domains()
     ['domain1.example', 'domain2.example']
     >>>
-    >>> client.get_a_records('domain1.example')
+    >>> client.get_records('domain1.example', record_type='A')
     [{'name': 'dynamic', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'}]
     >>>
     >>> client.update_ip('2.2.2.2', domains=['domain1.example'])
+    True
     >>>
-    >>> client.get_a_records('domain1.example')
-    [{'name': 'dynamic', 'ttl': 3600, 'data': '2.2.2.2', 'type': 'A'}]
+    >>> client.get_records('domain1.example')
+    [{'name': 'dynamic', 'ttl': 3600, 'data': '2.2.2.2', 'type': 'A'}, {'name': 'dynamic', 'ttl': 3600, 'data': '::1',
+    'type': 'AAAA'},]
     >>>
-    >>> client.get_record('domain1.example', 'dynamic', 'A')
-    {'name': 'dynamic', 'ttl': 3600, 'data': '2.2.2.2', 'type': 'A'}
+    >>> client.get_records(dom, record_type='A', name='@')
+    [{u'data': u'1.2.3.4', u'type': u'A', u'name': u'@', u'ttl': 3600}]
     >>>
     >>> client.update_record_ip('3.3.3.3', 'domain1.example', 'dynamic', 'A')
     >>>
-    >>> client.get_record('domain1.example', 'dynamic', 'A')
-    {'name': 'dynamic', 'ttl': 3600, 'data': '3.3.3.3', 'type': 'A'}
+    >>> client.add_record('apple.com', {'data':'1.2.3.4','name':'test','ttl':3600, 'type':'A'})
+    True
+    >>> client.delete_records(dom, name='test')
+    True
 ..
 
 TODOs

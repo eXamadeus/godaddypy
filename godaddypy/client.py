@@ -85,6 +85,9 @@ class Client(object):
         """
         self.add_records(domain, [record])
 
+        # If we didn't get any exceptions, return True to let the user know
+        return True
+
     def add_records(self, domain, records):
         """Adds the specified DNS records to a domain.
 
@@ -94,6 +97,9 @@ class Client(object):
         url = self.API_TEMPLATE + self.RECORDS.format(domain=domain)
         self._patch(url, json=records)
         logging.info('Added records @ {}'.format(records))
+
+        # If we didn't get any exceptions, return True to let the user know
+        return True
 
     def get_domain_info(self, domain):
         """Get the GoDaddy supplied information about a specific domain.
