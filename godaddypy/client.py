@@ -117,10 +117,13 @@ class Client(object):
         return data
 
     def put_a_records(self, domain, records):
-        for _rec in records:
-            url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type='A', name=_rec['name'])
-            self._put(url, json=_rec, headers=self._get_headers())
-            logging.info('Updated {} records @ {}'.format(len(records), domain))
+        self.put_records('A', domain, records)
+
+    def put_record(self, record_type, domain, record_name, record):
+        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record_type,
+                                                                    name=record_name)
+        self._put(url, json=record, headers=self._get_headers())
+        logging.info('Updated record @ {}'.format(domain))
 
     def put_records(self, record_type, domain, records):
         for _rec in records:
@@ -183,10 +186,10 @@ class Client(object):
     def update_record_ip(self, ip, domain, name, record_type):
         """Update the IP address for a single record
 
-        ip -- the new IP for the DNS record (ex. '123.1.2.255')
-        domain -- the domain where the DNS belongs to (ex. 'example.com')
-        name -- the DNS record name to be updated (ex. 'dynamic')
-        record_type -- Record type (ex. 'CNAME', 'A'...)
+        :param ip: the new IP for the DNS record (ex. '123.1.2.255')
+        :param domain: the domain where the DNS belongs to (ex. 'example.com')
+        :param name: the DNS record name to be updated (ex. 'dynamic')
+        :param record_type: Record type (ex. 'CNAME', 'A'...)
         """
 
         record = self.get_record(domain, name, record_type)
@@ -200,9 +203,8 @@ class Client(object):
     def _put_record(self, domain, record):
         """Call to godaddy API to update a single DNS record
 
-        domain -- the domain where the DNS belongs to (eg. 'example.com')
-        record -- dict with record info (ex. {'name': 'dynamic', 'ttl': 3600,
-                  'data': '1.1.1.1', 'type': 'A'})
+        :param domain: the domain where the DNS belongs to (eg. 'example.com')
+        :param record: dict with record info (ex. {'name': 'dynamic', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'})
         """
         url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record['type'],
                                                                     name=record['name'])
