@@ -55,6 +55,7 @@ Examples
     >>>
     >>> client.add_record('apple.com', {'data':'1.2.3.4','name':'test','ttl':3600, 'type':'A'})
     True
+    >>>
     >>> client.delete_records(dom, name='test')
     True
 ..
