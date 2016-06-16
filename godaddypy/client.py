@@ -11,7 +11,7 @@ class Client(object):
     This client is used to connect to the GoDaddy API and to perform requests with said API.
     """
 
-    def __init__(self, account, logging_handler=logging.StreamHandler()):
+    def __init__(self, account, log_level=logging.WARNING):
         """Create a new `godaddypy.Client` object
 
         :type account: godaddypy.Account
@@ -20,49 +20,51 @@ class Client(object):
 
         # Logging setup
         self.logger = logging.getLogger(__name__)
-        logging_handler.setLevel(logging.INFO)
-        self.logger.addHandler(logging_handler)
+        self.logger.setLevel(log_level)
+        self.logger.addHandler(logging.StreamHandler())
 
         # Templates
         self.API_TEMPLATE = 'https://api.godaddy.com/v1'
-        self.GET_DOMAINS = '/domains'
-        self.GET_DOMAIN = '/domains/{domain}'
-        self.GET_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/'
-        self.PUT_RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
-        self.PATCH_RECORDS = '/domains/{domain}/records'
-        self.PUT_RECORDS = '/domains/{domain}/records'
-        self.GET_DOMAIN_PURCHASE_SCHEMA = '/domains/purchase/schema/{tld}'
-        self.GET_RECORD_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
+        self.DOMAINS = '/domains'
+        self.DOMAIN_INFO = '/domains/{domain}'
+        self.RECORDS = '/domains/{domain}/records'
+        self.RECORDS_TYPE = '/domains/{domain}/records/{type}/'
+        self.RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
 
         self.account = account
 
+    def __get_headers(self):
+        return self.account.get_auth_headers()
+
+    def __request_submit(self, function, **kwargs):
+        """A helper function that will wrap any requests we make.
+
+        :param function: a function reference to the requests method to invoke
+        :param kwargs: any extra arguments that requests.request takes
+
+        :type function: (url: Any, data: Any, json: Any, kwargs: Dict)
+        """
+        resp = function(headers=self.__get_headers(), **kwargs)
+        self._log_response_from_method(function.__name__, resp)
+        self._validate_response_success(resp)
+        return resp
+
+    def _get_json_from_response(self, url, json=None, **kwargs):
+        return self.__request_submit(requests.get, url=url, json=json, **kwargs).json()
+
     def _log_response_from_method(self, req_type, resp):
-        self.logger.info('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
+        self.logger.debug('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
         self.logger.debug('Response data: {}'.format(resp.content))
+
+    def _patch(self, url, json=None, **kwargs):
+        return self.__request_submit(requests.patch, url=url, json=json, **kwargs)
+
+    def _put(self, url, json=None, **kwargs):
+        return self.__request_submit(requests.put, url=url, json=json, **kwargs)
 
     @staticmethod
     def _remove_key_from_dict(dictionary, key_to_remove):
         return {key: value for key, value in dictionary.items() if key != key_to_remove}
-
-    @staticmethod
-    def _validate_response_success(response):
-        if response.status_code != 200:
-            raise BadResponse(response.json())
-
-    def _get(self, url, **kwargs):
-        resp = requests.get(url, **kwargs)
-        self._log_response_from_method('get', resp)
-        self._validate_response_success(resp)
-        return resp
-
-    def _get_headers(self):
-        return self.account.get_auth_headers()
-
-    def _put(self, url, **kwargs):
-        resp = requests.put(url, **kwargs)
-        self._log_response_from_method('put', resp)
-        self._validate_response_success(resp)
-        return resp
 
     def _scope_control_account(self, account):
         if account is None:
@@ -70,9 +72,45 @@ class Client(object):
         else:
             return account
 
+    @staticmethod
+    def _validate_response_success(response):
+        if response.status_code != 200:
+            raise BadResponse(response.json())
+
+    def add_record(self, domain, record):
+        """Adds the specified DNS record to a domain.
+
+        :param domain: the domain to add the record to
+        :param record: the record to add
+        """
+        self.add_records(domain, [record])
+
+    def add_records(self, domain, records):
+        """Adds the specified DNS records to a domain.
+
+        :param domain: the domain to add the records to
+        :param records: the records to add
+        """
+        url = self.API_TEMPLATE + self.RECORDS.format(domain=domain)
+        self._patch(url, json=records)
+        logging.info('Added records @ {}'.format(records))
+
+    def get_domain_info(self, domain):
+        """Get the GoDaddy supplied information about a specific domain.
+
+        :param domain: The domain to obtain info about.
+        :type domain: str
+
+        :return A JSON string representing the domain information
+        """
+        url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
+        return self._get_json_from_response(url)
+
     def get_domains(self):
-        url = self.API_TEMPLATE + self.GET_DOMAINS
-        data = self._get(url, headers=self._get_headers()).json()
+        """Returns a list of ACTIVE domains for the authenticated user.
+        """
+        url = self.API_TEMPLATE + self.DOMAINS
+        data = self._get_json_from_response(url)
 
         domains = list()
         for item in data:
@@ -83,63 +121,41 @@ class Client(object):
 
         return domains
 
-    def get_domain_schema(self, tld='com'):
-        """Get the purchase request schema for a specified top level domain (tld)
+    def get_records(self, domain, record_type=None, name=None):
+        """Returns records from a single domain.  You can specify type/name as filters for the records returned.  If
+        you specify a name you MUST also specify a type.
 
-        :param tld: The top level domain (ex: 'com', 'edu', 'gov')
-        :type tld: str
-
-        :return: The purchase request schema as a JSON string
+        :param domain: the domain to get DNS information from
+        :param record_type: the type of record(s) to retrieve
+        :param name: the name of the record(s) to retrieve
         """
-        url = self.API_TEMPLATE + self.GET_DOMAIN_PURCHASE_SCHEMA.format(tld=tld)
-        return self._get(url=url, headers=self._get_headers()).json()
 
-    def get_api_url(self):
-        return self.API_TEMPLATE
+        url = self.API_TEMPLATE
 
-    def get_domain_info(self, domain):
-        """Get the GoDaddy supplied information about a specific domain.
+        if name is None and record_type is None:
+            url += self.RECORDS.format(domain=domain)
+        elif name is None and record_type is not None:
+            url += self.RECORDS_TYPE.format(domain=domain, type=record_type)
+        elif name is not None and record_type is None:
+            raise ValueError("If name is specified, type must also be specified")
+        else:
+            url += self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
 
-        :param domain: The domain to obtain info about.
-        :type domain: str
-
-        :return A JSON string representing the domain information
-        """
-        url = self.API_TEMPLATE + self.GET_DOMAIN.format(domain=domain)
-        return self._get(url, headers=self._get_headers()).json()
-
-    def get_a_records(self, domain):
-        url = self.API_TEMPLATE + self.GET_RECORDS_TYPE_NAME.format(domain=domain, type='A')
-        data = self._get(url, headers=self._get_headers()).json()
-
-        self.logger.info('Retrieved {} records from {}.'.format(len(data), domain))
-
+        data = self._get_json_from_response(url)
+        self.logger.info('Retrieved {} record(s) from {}.'.format(len(data), domain))
         return data
 
-    def put_a_records(self, domain, records):
-        self.put_records('A', domain, records)
+    def update_ip(self, ip, record_type='A', domains=None, subdomains=None):
+        """Update the IP address in all records, specified by type, to the value of ip.  Returns True if no
+        exceptions occurred during the update.  If no domains are provided, all domains returned from
+        self.get_domains() will be updated.  By default, only A records are updated.
 
-    def put_record(self, record_type, domain, record_name, record):
-        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record_type,
-                                                                    name=record_name)
-        self._put(url, json=record, headers=self._get_headers())
-        logging.info('Updated record @ {}'.format(domain))
-
-    def put_records(self, record_type, domain, records):
-        for _rec in records:
-            url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record_type,
-                                                                        name=_rec['name'])
-            self._put(url, json=_rec, headers=self._get_headers())
-            logging.info('Updated {} records @ {}'.format(len(records), domain))
-
-    def update_ip(self, ip, domains=None, subdomains=None):
-        """Update the IP address in all A records to the value of ip.  Returns True if no exceptions occurred during
-        the update.  If no domains are provided, all domains returned from self.get_domains() will be updated.
-
+        :param record_type: The type of records to update (eg. 'A')
         :param ip: The new IP address (eg. '123.1.2.255')
         :param domains: A list of the domains you want to update (eg. ['123.com','abc.net'])
         :param subdomains: A list of the subdomains you want to update (eg. ['www','dev'])
 
+        :type record_type: str
         :type ip: str
         :type domains: str, list of str
         :type subdomains: str, list of str
@@ -147,7 +163,7 @@ class Client(object):
 
         if domains is None:
             domains = self.get_domains()
-        elif type(domains) == str:
+        elif type(domains) == str or type(domains) == unicode:
             domains = [domains]
         elif type(domains) == list:
             pass
@@ -155,9 +171,8 @@ class Client(object):
             raise SystemError("Domains must be type 'list' or type 'str'")
 
         for domain in domains:
-            records = self.get_a_records(domain)
-            new_records = []
-            for record in records:
+            a_records = self.get_records(domain, record_type=record_type)
+            for record in a_records:
                 r_name = str(record['name'])
                 r_ip = str(record['data'])
 
@@ -166,25 +181,60 @@ class Client(object):
                     if ((subdomains is None) or
                             (type(subdomains) == list and subdomains.count(r_name)) or
                             (type(subdomains) == str and subdomains == r_name)):
-                        data = {'data': str(ip)}
-                        record.update(data)
-
-                        new_records.append(record)
-
-            self.put_a_records(domain, new_records)
+                        record.update(data=str(ip))
+                        self.update_record(domain, record)
 
         # If we didn't get any exceptions, return True to let the user know
         return True
 
-    def get_record(self, domain, name, record_type):
-        """Returns information from a single DNS record."""
-        url = self.API_TEMPLATE + self.GET_RECORD_TYPE_NAME.format(domain=domain, type=record_type, name=name)
-        data = self._get(url, headers=self._get_headers()).json()
-        self.logger.info('Retrieved {} record from {}.'.format(len(data), domain))
-        return data[0]
+    def delete_records(self, domain, name, record_type=None):
+        """Deletes records by name.  You can also add a record type, which will only delete records with the
+        specified type/name combo.  If no record type is specified, ALL records that have a matching name will be
+        deleted.
+
+        :param domain: the domain to delete records from
+        :param name: the name of records to remove
+        :param record_type: the type of records to remove
+        """
+
+        records = self.get_records(domain)
+        save = list()
+        deleted = 0
+        for record in records:
+            if (record_type == str(record['type']) or record_type is None) and name == str(record['name']):
+                deleted += 1
+            else:
+                save.append(record)
+
+        self._put(self.API_TEMPLATE + self.RECORDS.format(domain=domain), json=save)
+        self.logger.info("Deleted {} records @ {}".format(deleted, domain))
+
+        # If we didn't get any exceptions, return True to let the user know
+        return True
+
+    def update_record(self, domain, record, record_type=None, name=None):
+        """Call to GoDaddy API to update a single DNS record
+
+        :param name: only required if the record is None (deletion)
+        :param record_type: only required if the record is None (deletion)
+        :param domain: the domain where the DNS belongs to (eg. 'example.com')
+        :param record: dict with record info (ex. {'name': 'dynamic', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'})
+        """
+        if record_type is None:
+            record_type = record['type']
+        if name is None:
+            name = record['name']
+
+        url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+        self._put(url, json=record)
+        logging.info(
+            'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
+
+        # If we didn't get any exceptions, return True to let the user know
+        return True
 
     def update_record_ip(self, ip, domain, name, record_type):
-        """Update the IP address for a single record
+        """Update the IP address(es) for (a) domain(s) specified by type and name.
 
         :param ip: the new IP for the DNS record (ex. '123.1.2.255')
         :param domain: the domain where the DNS belongs to (ex. 'example.com')
@@ -192,24 +242,14 @@ class Client(object):
         :param record_type: Record type (ex. 'CNAME', 'A'...)
         """
 
-        record = self.get_record(domain, name, record_type)
+        records = self.get_records(domain, name, record_type)
         data = {'data': str(ip)}
-        record.update(data)
-        self._put_record(domain, record)
+        for _rec in records:
+            _rec.update(data)
+            self.update_record(domain, _rec)
 
         # If we didn't get any exceptions, return True to let the user know
         return True
-
-    def _put_record(self, domain, record):
-        """Call to godaddy API to update a single DNS record
-
-        :param domain: the domain where the DNS belongs to (eg. 'example.com')
-        :param record: dict with record info (ex. {'name': 'dynamic', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'})
-        """
-        url = self.API_TEMPLATE + self.PUT_RECORDS_TYPE_NAME.format(domain=domain, type=record['type'],
-                                                                    name=record['name'])
-        self._put(url, json=record, headers=self._get_headers())
-        logging.info('Updated record. Domain {} name {} type {}'.format(domain, record['name'], record['type']))
 
 
 class BadResponse(Exception):
