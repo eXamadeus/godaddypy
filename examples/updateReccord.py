@@ -15,10 +15,10 @@ userClient = Client(userAccount)
 publicIP = pif.get_public_ip('ident.me')
 
 try:
-    records = userClient.get_records(domain, a_record, 'A')
+    records = userClient.get_records(domain, name=a_record, record_type='A')
     for record in records:
         if publicIP != record["data"]:
-            updateResult = userClient.update_record_ip(publicIP, domain, a_record, 'A')
+            updateResult = userClient.update_record_ip(publicIP, domain, name=a_record, record_type='A')
             if updateResult is True:
                 print('Update ended with no Exception.')
         else:

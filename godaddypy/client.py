@@ -243,7 +243,7 @@ class Client(object):
             else:
                 save.append(record)
 
-        self._put(self.API_TEMPLATE + self.RECORDS.format(domain=domain), json=save)
+        self.replace_records(domain, records=save)
         self.logger.info("Deleted {} records @ {}".format(deleted, domain))
 
         # If we didn't get any exceptions, return True to let the user know
@@ -283,7 +283,7 @@ class Client(object):
         :return: True if no exceptions occurred
         """
 
-        records = self.get_records(domain, name, record_type)
+        records = self.get_records(domain, name=name, record_type=record_type)
         data = {'data': str(ip)}
         for _rec in records:
             _rec.update(data)
