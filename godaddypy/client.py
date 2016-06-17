@@ -29,15 +29,46 @@ class Client(object):
         self.DOMAINS = '/domains'
         self.DOMAIN_INFO = '/domains/{domain}'
         self.RECORDS = '/domains/{domain}/records'
-        self.RECORDS_TYPE = '/domains/{domain}/records/{type}/'
+        self.RECORDS_TYPE = '/domains/{domain}/records/{type}'
         self.RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
 
         self.account = account
 
-    def __get_headers(self):
+    def _build_record_url(self, domain, record_type=None, name=None):
+        url = self.API_TEMPLATE
+
+        if name is None and record_type is None:
+            url += self.RECORDS.format(domain=domain)
+        elif name is None and record_type is not None:
+            url += self.RECORDS_TYPE.format(domain=domain, type=record_type)
+        elif name is not None and record_type is None:
+            raise ValueError("If name is specified, type must also be specified")
+        else:
+            url += self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+
+        return url
+
+    def _get_headers(self):
         return self.account.get_auth_headers()
 
-    def __request_submit(self, function, **kwargs):
+    def _get_json_from_response(self, url, json=None, **kwargs):
+        return self._request_submit(requests.get, url=url, json=json, **kwargs).json()
+
+    def _log_response_from_method(self, req_type, resp):
+        self.logger.debug('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
+        self.logger.debug('Response data: {}'.format(resp.content))
+
+    def _patch(self, url, json=None, **kwargs):
+        return self._request_submit(requests.patch, url=url, json=json, **kwargs)
+
+    def _put(self, url, json=None, **kwargs):
+        return self._request_submit(requests.put, url=url, json=json, **kwargs)
+
+    @staticmethod
+    def _remove_key_from_dict(dictionary, key_to_remove):
+        return {key: value for key, value in dictionary.items() if key != key_to_remove}
+
+    def _request_submit(self, function, **kwargs):
         """A helper function that will wrap any requests we make.
 
         :param function: a function reference to the requests method to invoke
@@ -45,27 +76,10 @@ class Client(object):
 
         :type function: (url: Any, data: Any, json: Any, kwargs: Dict)
         """
-        resp = function(headers=self.__get_headers(), **kwargs)
+        resp = function(headers=self._get_headers(), **kwargs)
         self._log_response_from_method(function.__name__, resp)
         self._validate_response_success(resp)
         return resp
-
-    def _get_json_from_response(self, url, json=None, **kwargs):
-        return self.__request_submit(requests.get, url=url, json=json, **kwargs).json()
-
-    def _log_response_from_method(self, req_type, resp):
-        self.logger.debug('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
-        self.logger.debug('Response data: {}'.format(resp.content))
-
-    def _patch(self, url, json=None, **kwargs):
-        return self.__request_submit(requests.patch, url=url, json=json, **kwargs)
-
-    def _put(self, url, json=None, **kwargs):
-        return self.__request_submit(requests.put, url=url, json=json, **kwargs)
-
-    @staticmethod
-    def _remove_key_from_dict(dictionary, key_to_remove):
-        return {key: value for key, value in dictionary.items() if key != key_to_remove}
 
     def _scope_control_account(self, account):
         if account is None:
@@ -137,20 +151,29 @@ class Client(object):
         :param name: the name of the record(s) to retrieve
         """
 
-        url = self.API_TEMPLATE
-
-        if name is None and record_type is None:
-            url += self.RECORDS.format(domain=domain)
-        elif name is None and record_type is not None:
-            url += self.RECORDS_TYPE.format(domain=domain, type=record_type)
-        elif name is not None and record_type is None:
-            raise ValueError("If name is specified, type must also be specified")
-        else:
-            url += self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
-
+        url = self._build_record_url(domain, record_type=record_type, name=name)
         data = self._get_json_from_response(url)
         self.logger.info('Retrieved {} record(s) from {}.'.format(len(data), domain))
+
         return data
+
+    def replace_records(self, domain, records, record_type=None, name=None):
+        """This will replace all records with at the domain.  Record type and record name can be provided to filter
+        which records to replace.
+
+        :param domain: the domain to replace records at
+        :param records: the records you will be saving
+        :param record_type: the type of records you want to replace (eg. only replace 'A' records)
+        :param name: the name of records you want to replace (eg. only replace records with name 'test')
+
+        :return: True if no exceptions occurred
+        """
+
+        url = self._build_record_url(domain, name=name, record_type=record_type)
+        self._put(url, json=records)
+
+        # If we didn't get any exceptions, return True to let the user know
+        return True
 
     def update_ip(self, ip, record_type='A', domains=None, subdomains=None):
         """Update the IP address in all records, specified by type, to the value of ip.  Returns True if no
@@ -166,6 +189,8 @@ class Client(object):
         :type ip: str
         :type domains: str, list of str
         :type subdomains: str, list of str
+
+        :return: True if no exceptions occurred
         """
 
         if domains is None:
@@ -205,6 +230,8 @@ class Client(object):
         :param domain: the domain to delete records from
         :param name: the name of records to remove
         :param record_type: the type of records to remove
+
+        :return: True if no exceptions occurred
         """
 
         records = self.get_records(domain)
@@ -229,6 +256,8 @@ class Client(object):
         :param record_type: only required if the record is None (deletion)
         :param domain: the domain where the DNS belongs to (eg. 'example.com')
         :param record: dict with record info (ex. {'name': 'dynamic', 'ttl': 3600, 'data': '1.1.1.1', 'type': 'A'})
+
+        :return: True if no exceptions occurred
         """
         if record_type is None:
             record_type = record['type']
@@ -250,6 +279,8 @@ class Client(object):
         :param domain: the domain where the DNS belongs to (ex. 'example.com')
         :param name: the DNS record name to be updated (ex. 'dynamic')
         :param record_type: Record type (ex. 'CNAME', 'A'...)
+
+        :return: True if no exceptions occurred
         """
 
         records = self.get_records(domain, name, record_type)

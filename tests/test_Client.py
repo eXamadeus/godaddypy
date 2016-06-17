@@ -6,9 +6,6 @@ from mock import patch
 from godaddypy import Client, Account
 from godaddypy.client import BadResponse
 
-_API_SECRET = 'LWNJoLvEVv6ffgDMTnPnWp'
-_API_KEY = 'Uzs41jzo_HftC2uYCXP6VmhZDFi95Br'
-
 
 class TestClient:
     @classmethod
@@ -16,7 +13,7 @@ class TestClient:
         cls.logger = logging.getLogger(cls.__name__)
         cls.logger.setLevel(logging.INFO)
 
-        cls.account = Account(_API_KEY, _API_SECRET)
+        cls.account = Account('', '')
         # Create a Client and override the API to use the test API
         cls.client = Client(cls.account, log_level=logging.WARNING)
         cls.client.API_TEMPLATE = 'https://api.ote-godaddy.com/v1'
@@ -35,7 +32,7 @@ class TestClient:
         did_raise = False
 
         try:
-            self.client.get_records('somebody.com', 'A')
+            self.client.get_records('somebody.com', record_type='A')
         except BadResponse as resp:
             did_raise = True
             assert resp is not None
@@ -67,3 +64,38 @@ class TestClient:
         self.client.delete_records(fake_domain, 'test2')
 
         put_mock.assert_called_once_with(callee.String(), json=[fake_records[0]])
+
+    def test_build_record_url_happy_path(self):
+        domains = ['test.com', 'apple.com', 'google.com', 'aol.com']
+        names = ['@', None, 'someName', None]
+        types = ['A', 'AAAA', 'DNS', None]
+
+        expected = [self.client.API_TEMPLATE + self.client.RECORDS_TYPE_NAME.format(domain=domains[0],
+                                                                                    name=names[0],
+                                                                                    type=types[0]),
+                    self.client.API_TEMPLATE + self.client.RECORDS_TYPE.format(domain=domains[1],
+                                                                               type=types[1]),
+                    self.client.API_TEMPLATE + self.client.RECORDS_TYPE_NAME.format(domain=domains[2],
+                                                                                    name=names[2],
+                                                                                    type=types[2]),
+                    self.client.API_TEMPLATE + self.client.RECORDS.format(domain=domains[3])]
+
+        urls = list()
+
+        if len(domains) == len(names) == len(types) == len(expected):
+            for i, val in enumerate(domains):
+                urls.append(self.client._build_record_url(val, name=names[i], record_type=types[i]))
+                assert urls[i] == expected[i]
+        else:
+            raise ValueError(
+                "The test {} has invalid internal parameters!".format(self.test_build_record_url_happy_path.__name__))
+
+    def test_build_record_url_raise_value_error(self):
+        raised = False
+
+        try:
+            self.client._build_record_url('test.com', None, 'blah')
+        except ValueError:
+            raised = True
+
+        assert raised
