@@ -158,7 +158,7 @@ class Client(object):
         return data
 
     def replace_records(self, domain, records, record_type=None, name=None):
-        """This will replace all records with at the domain.  Record type and record name can be provided to filter
+        """This will replace all records at the domain.  Record type and record name can be provided to filter
         which records to replace.
 
         :param domain: the domain to replace records at
