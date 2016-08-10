@@ -235,6 +235,8 @@ class Client(object):
         """
 
         records = self.get_records(domain)
+        if records is None:
+            return False  # we don't want to replace the records with nothing at all
         save = list()
         deleted = 0
         for record in records:
