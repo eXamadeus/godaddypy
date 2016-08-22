@@ -227,6 +227,10 @@ class Client(object):
         specified type/name combo.  If no record type is specified, ALL records that have a matching name will be
         deleted.
 
+        This is haphazard functionality.   I DO NOT recommend using this in Production code, as your entire DNS record
+        set could be deleted, depending on the fickleness of GoDaddy.  Unfortunately, they do not expose a proper
+        "delete record" call, so there isn't much one can do here...
+
         :param domain: the domain to delete records from
         :param name: the name of records to remove
         :param record_type: the type of records to remove
