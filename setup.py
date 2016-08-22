@@ -1,12 +1,20 @@
 #!/usr/bin/env python
 
+import re
+
 from setuptools import setup
 
-from godaddypy import __version__
+with open('godaddypy/__init__.py', 'r') as f:
+    version_match = re.search(r'^__version__\s*=\s*[\']([^\']*)[\']',
+                              f.read(), re.MULTILINE)
 
+if version_match is None:
+    raise RuntimeError('No version information found in godaddypy/__init__.py')
+else:
+    version = version_match.group(1)
 
 setup(name='GoDaddyPy',
-      version=__version__,
+      version=version,
       description='A very simple python client used to update the IP address in A records for GoDaddy managed domains.',
       author='Julian Coy',
       author_email='julian.calvin.coy@gmail.com',
