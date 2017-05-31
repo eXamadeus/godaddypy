@@ -4,7 +4,7 @@ python:
   - 3.4
 script: nosetests tests
 install:
-  - pip install -r requirements.txt --user
-  - pip install -r test_requirements.txt --user
+  - pip install -r requirements.txt
+  - pip install -r test_requirements.txt
 notifications:
   email: false
