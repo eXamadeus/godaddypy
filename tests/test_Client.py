@@ -72,8 +72,8 @@ class TestClient:
 
         acct = Account(api_key=_PUBLIC_KEY, api_secret=_PRIVATE_KEY, delegate=_DELEGATE_ID)
 
-        assert acct.get_headers().has_key('X-Shopper-Id')
-        assert acct.get_headers().has_key('Authorization')
+        assert 'X-Shopper-Id' in acct.get_headers()
+        assert 'Authorization' in acct.get_headers()
         assert acct.get_headers()['X-Shopper-Id'] == _DELEGATE_ID
         assert acct.get_headers()['Authorization'] == Account._SSO_KEY_TEMPLATE.format(api_secret=_PRIVATE_KEY,
                                                                                        api_key=_PUBLIC_KEY)
