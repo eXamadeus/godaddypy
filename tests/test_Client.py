@@ -65,6 +65,16 @@ class TestClient:
 
         put_mock.assert_called_once_with(callee.String(), json=[fake_records[0]])
 
+    def test_account_without_delegate(self):
+        _PRIVATE_KEY = 'blahdeyblah'
+        _PUBLIC_KEY = 'hooeybalooooooeryasdfasdfsdfs'
+
+        acct = Account(api_key=_PUBLIC_KEY, api_secret=_PRIVATE_KEY)
+
+        assert 'Authorization' in acct.get_headers()
+        assert acct.get_headers()['Authorization'] == Account._SSO_KEY_TEMPLATE.format(api_secret=_PRIVATE_KEY,
+                                                                                       api_key=_PUBLIC_KEY)
+
     def test_account_with_delegate(self):
         _DELEGATE_ID = '1234987234jdsfasdf'
         _PRIVATE_KEY = 'blahdeyblah'

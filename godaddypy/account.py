@@ -23,8 +23,7 @@ class Account(object):
 
         self._api_key = api_key
         self._api_secret = api_secret
-        if delegate is not None:
-            self._delegate = delegate
+        self._delegate = delegate
 
     def get_headers(self):
         headers = {
