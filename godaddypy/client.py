@@ -89,7 +89,11 @@ class Client(object):
 
     @staticmethod
     def _validate_response_success(response):
-        if response.status_code != 200:
+        """ Only raise exceptions for 4xx/5xx errors because GoDaddy doesn't
+        always return 200 for a correct request """
+        try:
+            response.raise_for_status()
+        except Exception as e:
             raise BadResponse(response.json())
 
     def add_record(self, domain, record):
@@ -142,6 +146,27 @@ class Client(object):
 
         return domains
 
+    def update_domain(self, domain, **kwargs):
+        """
+         Update an existing domain via PATCH /v1/domains/{domain}
+         https://developer.godaddy.com/doc#!/_v1_domains/update
+         
+         currently it supports ( all optional )
+            locked = boolean
+            nameServers = list
+            renewAuto = boolean
+            subaccountId = string
+
+        NOTE: It can take minutes for GoDaddy to update the record.  Make sure you
+        wait before checking status.
+        """
+        update = {}
+        for k, v in kwargs.items():
+            update[k] = v
+        url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
+        self._patch(url, json=update)
+        logging.info("Updated domain {} with {}".format(domain, update))
+        
     def get_records(self, domain, record_type=None, name=None):
         """Returns records from a single domain.  You can specify type/name as filters for the records returned.  If
         you specify a name you MUST also specify a type.
