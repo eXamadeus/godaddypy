@@ -49,7 +49,7 @@ class Client(object):
         return url
 
     def _get_headers(self):
-        return self.account.get_auth_headers()
+        return self.account.get_headers()
 
     def _get_json_from_response(self, url, json=None, **kwargs):
         return self._request_submit(requests.get, url=url, json=json, **kwargs).json()

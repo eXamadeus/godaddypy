@@ -65,6 +65,19 @@ class TestClient:
 
         put_mock.assert_called_once_with(callee.String(), json=[fake_records[0]])
 
+    def test_account_with_delegate(self):
+        _DELEGATE_ID = '1234987234jdsfasdf'
+        _PRIVATE_KEY = 'blahdeyblah'
+        _PUBLIC_KEY = 'hooeybalooooooeryasdfasdfsdfs'
+
+        acct = Account(api_key=_PUBLIC_KEY, api_secret=_PRIVATE_KEY, delegate=_DELEGATE_ID)
+
+        assert acct.get_headers().has_key('X-Shopper-Id')
+        assert acct.get_headers().has_key('Authorization')
+        assert acct.get_headers()['X-Shopper-Id'] == _DELEGATE_ID
+        assert acct.get_headers()['Authorization'] == Account._SSO_KEY_TEMPLATE.format(api_secret=_PRIVATE_KEY,
+                                                                                       api_key=_PUBLIC_KEY)
+
     def test_build_record_url_happy_path(self):
         domains = ['test.com', 'apple.com', 'google.com', 'aol.com']
         names = ['@', None, 'someName', None]
