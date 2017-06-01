@@ -12,7 +12,7 @@ class Client(object):
     This client is used to connect to the GoDaddy API and to perform requests with said API.
     """
 
-    def __init__(self, account, log_level=logging.WARNING):
+    def __init__(self, account, log_level=None):
         """Create a new `godaddypy.Client` object
 
         :type account: godaddypy.Account
@@ -20,9 +20,10 @@ class Client(object):
         """
 
         # Logging setup
-        self.logger = logging.getLogger(__name__)
-        self.logger.setLevel(log_level)
-        self.logger.addHandler(logging.StreamHandler())
+        self.logger = logging.getLogger('GoDaddyPy.Client')
+        # Explicit override of logging level
+        if log_level is not None:
+            self.logger.setLevel(log_level)
 
         # Templates
         self.API_TEMPLATE = 'https://api.godaddy.com/v1'
@@ -68,16 +69,16 @@ class Client(object):
     def _remove_key_from_dict(dictionary, key_to_remove):
         return {key: value for key, value in dictionary.items() if key != key_to_remove}
 
-    def _request_submit(self, function, **kwargs):
+    def _request_submit(self, func, **kwargs):
         """A helper function that will wrap any requests we make.
 
-        :param function: a function reference to the requests method to invoke
+        :param func: a function reference to the requests method to invoke
         :param kwargs: any extra arguments that requests.request takes
 
-        :type function: (url: Any, data: Any, json: Any, kwargs: Dict)
+        :type func: (url: Any, data: Any, json: Any, kwargs: Dict)
         """
-        resp = function(headers=self._get_headers(), **kwargs)
-        self._log_response_from_method(function.__name__, resp)
+        resp = func(headers=self._get_headers(), **kwargs)
+        self._log_response_from_method(func.__name__, resp)
         self._validate_response_success(resp)
         return resp
 
@@ -115,7 +116,7 @@ class Client(object):
         """
         url = self.API_TEMPLATE + self.RECORDS.format(domain=domain)
         self._patch(url, json=records)
-        logging.info('Added records @ {}'.format(records))
+        self.logger.debug('Added records @ {}'.format(records))
 
         # If we didn't get any exceptions, return True to let the user know
         return True
@@ -132,7 +133,7 @@ class Client(object):
         return self._get_json_from_response(url)
 
     def get_domains(self):
-        """Returns a list of ACTIVE domains for the authenticated user.
+        """Returns a list of domains for the authenticated user.
         """
         url = self.API_TEMPLATE + self.DOMAINS
         data = self._get_json_from_response(url)
@@ -140,9 +141,8 @@ class Client(object):
         domains = list()
         for item in data:
             domain = item['domain']
-            if item['status'] == 'ACTIVE':
-                domains.append(domain)
-                self.logger.info('Discovered domains: {}'.format(domain))
+            domains.append(domain)
+            self.logger.debug('Discovered domains: {}'.format(domain))
 
         return domains
 
@@ -165,8 +165,8 @@ class Client(object):
             update[k] = v
         url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
         self._patch(url, json=update)
-        logging.info("Updated domain {} with {}".format(domain, update))
-        
+        self.logger.info("Updated domain {} with {}".format(domain, update))
+
     def get_records(self, domain, record_type=None, name=None):
         """Returns records from a single domain.  You can specify type/name as filters for the records returned.  If
         you specify a name you MUST also specify a type.
@@ -178,7 +178,7 @@ class Client(object):
 
         url = self._build_record_url(domain, record_type=record_type, name=name)
         data = self._get_json_from_response(url)
-        self.logger.info('Retrieved {} record(s) from {}.'.format(len(data), domain))
+        self.logger.debug('Retrieved {} record(s) from {}.'.format(len(data), domain))
 
         return data
 
@@ -297,7 +297,7 @@ class Client(object):
 
         url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
         self._put(url, json=record)
-        logging.info(
+        self.logger.info(
             'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
 
         # If we didn't get any exceptions, return True to let the user know
