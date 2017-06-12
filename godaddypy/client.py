@@ -27,11 +27,11 @@ class Client(object):
 
         # Templates
         self.API_TEMPLATE = 'https://api.godaddy.com/v1'
-        self.DOMAINS = '/domains'
-        self.DOMAIN_INFO = '/domains/{domain}'
-        self.RECORDS = '/domains/{domain}/records'
-        self.RECORDS_TYPE = '/domains/{domain}/records/{type}'
-        self.RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
+        self.DOMAINS = u'/domains'
+        self.DOMAIN_INFO = u'/domains/{domain}'
+        self.RECORDS = u'/domains/{domain}/records'
+        self.RECORDS_TYPE = u'/domains/{domain}/records/{type}'
+        self.RECORDS_TYPE_NAME = u'/domains/{domain}/records/{type}/{name}'
 
         self.account = account
 
