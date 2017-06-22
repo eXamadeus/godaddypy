@@ -67,7 +67,7 @@ class Client(object):
 
     @staticmethod
     def _remove_key_from_dict(dictionary, key_to_remove):
-        return {key: value for key, value in dictionary.items() if key != key_to_remove}
+        return dict((key, value) for key, value in dictionary.items() if key != key_to_remove)
 
     def _request_submit(self, func, **kwargs):
         """A helper function that will wrap any requests we make.
