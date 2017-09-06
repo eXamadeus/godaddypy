@@ -3,8 +3,18 @@ import sys
 
 import requests
 
+try:
+    # python3.x
+    from urllib.parse import urljoin
+except ImportError:
+    # python2.x
+    from urlparse import urljoin
+
+
 __all__ = ['Client']
 
+GODADDY_API_BASE_URL='https://api.godaddy.com/'
+GODADDY_API_VERSION='v1'
 
 class Client(object):
     """The GoDaddyPy Client.
@@ -12,7 +22,7 @@ class Client(object):
     This client is used to connect to the GoDaddy API and to perform requests with said API.
     """
 
-    def __init__(self, account, log_level=None):
+    def __init__(self, account, log_level=None, api_base_url=GODADDY_API_BASE_URL, api_version=GODADDY_API_VERSION):
         """Create a new `godaddypy.Client` object
 
         :type account: godaddypy.Account
@@ -26,7 +36,7 @@ class Client(object):
             self.logger.setLevel(log_level)
 
         # Templates
-        self.API_TEMPLATE = 'https://api.godaddy.com/v1'
+        self.API_TEMPLATE = urljoin(api_base_url, api_version)
         self.DOMAINS = u'/domains'
         self.DOMAIN_INFO = u'/domains/{domain}'
         self.RECORDS = u'/domains/{domain}/records'
