@@ -306,7 +306,9 @@ class Client(object):
             name = record['name']
 
         url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
-        self._put(url, json=record)
+        records = []
+        records.append(record)
+        self._put(url, json=records)
         self.logger.info(
             'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
 
