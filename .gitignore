@@ -37,3 +37,4 @@ docs/_build/
 .idea
 godaddypy.iml
 .cache/
+venv*/

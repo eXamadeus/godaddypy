@@ -10,11 +10,11 @@ except ImportError:
     # python2.x
     from urlparse import urljoin
 
+__all__ = ['Client', 'BadResponse']
 
-__all__ = ['Client']
+GODADDY_API_BASE_URL = 'https://api.godaddy.com/'
+GODADDY_API_VERSION = 'v1'
 
-GODADDY_API_BASE_URL='https://api.godaddy.com/'
-GODADDY_API_VERSION='v1'
 
 class Client(object):
     """The GoDaddyPy Client.
@@ -104,7 +104,7 @@ class Client(object):
         always return 200 for a correct request """
         try:
             response.raise_for_status()
-        except Exception as e:
+        except Exception:
             raise BadResponse(response.json())
 
     def add_record(self, domain, record):
@@ -306,9 +306,7 @@ class Client(object):
             name = record['name']
 
         url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
-        records = []
-        records.append(record)
-        self._put(url, json=records)
+        self._put(url, json=[record])
         self.logger.info(
             'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
 

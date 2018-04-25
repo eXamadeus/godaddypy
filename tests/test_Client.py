@@ -7,7 +7,7 @@ from godaddypy import Client, Account
 from godaddypy.client import BadResponse
 
 
-class TestClient:
+class TestClient(object):
     @classmethod
     def setup_class(cls):
         cls.logger = logging.getLogger(cls.__name__)
