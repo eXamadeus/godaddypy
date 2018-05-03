@@ -1,5 +1,9 @@
-.. image:: https://travis-ci.org/eXamadeus/godaddypy.svg?branch=master
+|travis| |climate|
+
+.. |travis| image:: https://travis-ci.org/eXamadeus/godaddypy.svg?branch=master
     :target: https://travis-ci.org/eXamadeus/godaddypy
+.. |climate| image:: https://codeclimate.com/github/eXamadeus/godaddypy/badges/gpa.svg
+    :target: https://codeclimate.com/github/eXamadeus/godaddypy
 
 GoDaddyPy
 ==========
