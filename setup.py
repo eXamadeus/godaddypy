@@ -13,9 +13,13 @@ if version_match is None:
 else:
     version = version_match.group(1)
 
+with open('README.rst') as file:
+    long_description = file.read()
+
 setup(name='GoDaddyPy',
       version=version,
       description='A very simple python client used to update the IP address in A records for GoDaddy managed domains.',
+      long_description=long_description,
       author='Julian Coy',
       author_email='julian.calvin.coy@gmail.com',
       url='https://github.com/eXamadeus/godaddypy',
