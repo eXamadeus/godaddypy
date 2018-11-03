@@ -1,6 +1,7 @@
 from __future__ import unicode_literals
 
 import logging
+import sys
 
 import requests
 
@@ -221,9 +222,14 @@ class Client(object):
 
         if domains is None:
             domains = self.get_domains()
-        elif isinstance(domains, (str, unicode)):
-            domains = [domains]
+        elif sys.version_info < (3, 0):
+            if isinstance(domains, (str, unicode)):
+                domains = [domains]
+        elif sys.version_info >= (3, 0):
+            if isinstance(domains, str):
+                domains = [domains]
         else:
+            # we have a tuple, set, or something else, try to convert it to a list
             domains = list(domains)
 
         for domain in domains:
