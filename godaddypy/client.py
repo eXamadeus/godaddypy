@@ -1,3 +1,5 @@
+from __future__ import unicode_literals
+
 import logging
 import sys
 
@@ -37,11 +39,11 @@ class Client(object):
 
         # Templates
         self.API_TEMPLATE = urljoin(api_base_url, api_version)
-        self.DOMAINS = u'/domains'
-        self.DOMAIN_INFO = u'/domains/{domain}'
-        self.RECORDS = u'/domains/{domain}/records'
-        self.RECORDS_TYPE = u'/domains/{domain}/records/{type}'
-        self.RECORDS_TYPE_NAME = u'/domains/{domain}/records/{type}/{name}'
+        self.DOMAINS = '/domains'
+        self.DOMAIN_INFO = '/domains/{domain}'
+        self.RECORDS = '/domains/{domain}/records'
+        self.RECORDS_TYPE = '/domains/{domain}/records/{type}'
+        self.RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
 
         self.account = account
 
@@ -75,10 +77,6 @@ class Client(object):
     def _put(self, url, json=None, **kwargs):
         return self._request_submit(requests.put, url=url, json=json, **kwargs)
 
-    @staticmethod
-    def _remove_key_from_dict(dictionary, key_to_remove):
-        return dict((key, value) for key, value in dictionary.items() if key != key_to_remove)
-
     def _request_submit(self, func, **kwargs):
         """A helper function that will wrap any requests we make.
 
@@ -91,12 +89,6 @@ class Client(object):
         self._log_response_from_method(func.__name__, resp)
         self._validate_response_success(resp)
         return resp
-
-    def _scope_control_account(self, account):
-        if account is None:
-            return self.account
-        else:
-            return account
 
     @staticmethod
     def _validate_response_success(response):
@@ -326,9 +318,9 @@ class Client(object):
 
         records = self.get_records(domain, name=name, record_type=record_type)
         data = {'data': str(ip)}
-        for _rec in records:
-            _rec.update(data)
-            self.update_record(domain, _rec)
+        for rec in records:
+            rec.update(data)
+            self.update_record(domain, rec)
 
         # If we didn't get any exceptions, return True to let the user know
         return True
@@ -336,8 +328,8 @@ class Client(object):
 
 class BadResponse(Exception):
     def __init__(self, message, *args, **kwargs):
-        self._message = message
+        self.message = message
         super(BadResponse, *args, **kwargs)
 
     def __str__(self, *args, **kwargs):
-        return 'Response Data: {}'.format(self._message)
+        return 'Response Data: {}'.format(self.message)
