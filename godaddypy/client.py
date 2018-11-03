@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import logging
-import sys
 
 import requests
 
@@ -212,8 +211,8 @@ class Client(object):
         :param domains: A list of the domains you want to update (eg. ['123.com','abc.net'])
         :param subdomains: A list of the subdomains you want to update (eg. ['www','dev'])
 
-        :type record_type: str
-        :type ip: str
+        :type record_type: str or unicode
+        :type ip: str or unicode
         :type domains: str, list of str
         :type subdomains: str, list of str
 
@@ -222,15 +221,10 @@ class Client(object):
 
         if domains is None:
             domains = self.get_domains()
-        elif sys.version_info < (3, 0):
-            if type(domains) == str or type(domains) == unicode:
-                domains = [domains]
-        elif sys.version_info >= (3, 0) and type(domains) == str:
+        elif isinstance(domains, (str, unicode)):
             domains = [domains]
-        elif type(domains) == list:
-            pass
         else:
-            raise SystemError("Domains must be type 'list' or type 'str'")
+            domains = list(domains)
 
         for domain in domains:
             a_records = self.get_records(domain, record_type=record_type)
@@ -239,10 +233,9 @@ class Client(object):
                 r_ip = str(record['data'])
 
                 if not r_ip == ip:
-
-                    if ((subdomains is None) or
-                            (type(subdomains) == list and subdomains.count(r_name)) or
-                            (type(subdomains) == str and subdomains == r_name)):
+                    if (subdomains is None or
+                            (isinstance(subdomains, (unicode, str)) and r_name == subdomains) or
+                            r_name in subdomains):
                         record.update(data=str(ip))
                         self.update_record(domain, record)
 
@@ -327,6 +320,7 @@ class Client(object):
 
 
 class BadResponse(Exception):
+
     def __init__(self, message, *args, **kwargs):
         self.message = message
         super(BadResponse, *args, **kwargs)

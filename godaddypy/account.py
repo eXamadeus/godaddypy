@@ -14,10 +14,10 @@ class Account(object):
     def __init__(self, api_key, api_secret, delegate=None):
         """Create a new `godadypy.Account` object.
 
-        :type api_key: str
+        :type api_key: str or unicode
         :param api_key: The API_KEY provided by GoDaddy
 
-        :type api_secret: str
+        :type api_secret: str or unicode
         :param api_secret: The API_SECRET provided by GoDaddy
         """
 

@@ -1,13 +1,16 @@
+from __future__ import unicode_literals
+
 import logging
 
 import callee
 from mock import patch
 
-from godaddypy import Client, Account
+from godaddypy import Account, Client
 from godaddypy.client import BadResponse
 
 
 class TestClient(object):
+
     @classmethod
     def setup_class(cls):
         cls.logger = logging.getLogger(cls.__name__)
@@ -17,6 +20,9 @@ class TestClient(object):
         # Create a Client and override the API to use the test API
         cls.client = Client(cls.account, log_level=logging.WARNING)
         cls.client.API_TEMPLATE = 'https://api.ote-godaddy.com/v1'
+
+        cls.fake_records = [{'name': 'test1', 'ttl': 3600, 'data': '127.0.0.1', 'type': 'A'},
+                            {'name': 'test2', 'ttl': 3600, 'data': '192.168.0.1', 'type': 'A'}]
 
     @patch.object(Client, '_get_json_from_response')
     def test_get_domains(self, mock):
@@ -39,18 +45,24 @@ class TestClient(object):
 
         assert did_raise
 
+    @patch.object(Client, '_put')
+    def test_update_record(self, put_mock):
+        self.client.update_record('test.com', self.fake_records[0])
+        put_mock.assert_called_once_with('https://api.ote-godaddy.com/v1/domains/test.com/records/A/test1',
+                                         json=[self.fake_records[0]])
+
     @patch.object(Client, 'update_record')
     @patch.object(Client, 'get_records')
     def test_update_ip(self, get_mock, update_mock):
-        fake_record = {'name': 'test', 'data': '0.0.0.0'}
         new_ip = '1.2.3.4'
 
-        get_mock.return_value = [fake_record]
+        get_mock.return_value = [self.fake_records[0]]
 
         self.client.update_ip(new_ip, domains=['abc.com'])
 
-        fake_record.update(data=new_ip)
-        update_mock.assert_called_once_with('abc.com', fake_record)
+        expected = self.fake_records[0].copy()
+        expected.update(data=new_ip)
+        update_mock.assert_called_once_with('abc.com', expected)
 
     @patch.object(Client, '_put')
     @patch.object(Client, 'get_records')
@@ -93,13 +105,10 @@ class TestClient(object):
         names = ['@', None, 'someName', None]
         types = ['A', 'AAAA', 'DNS', None]
 
-        expected = [self.client.API_TEMPLATE + self.client.RECORDS_TYPE_NAME.format(domain=domains[0],
-                                                                                    name=names[0],
+        expected = [self.client.API_TEMPLATE + self.client.RECORDS_TYPE_NAME.format(domain=domains[0], name=names[0],
                                                                                     type=types[0]),
-                    self.client.API_TEMPLATE + self.client.RECORDS_TYPE.format(domain=domains[1],
-                                                                               type=types[1]),
-                    self.client.API_TEMPLATE + self.client.RECORDS_TYPE_NAME.format(domain=domains[2],
-                                                                                    name=names[2],
+                    self.client.API_TEMPLATE + self.client.RECORDS_TYPE.format(domain=domains[1], type=types[1]),
+                    self.client.API_TEMPLATE + self.client.RECORDS_TYPE_NAME.format(domain=domains[2], name=names[2],
                                                                                     type=types[2]),
                     self.client.API_TEMPLATE + self.client.RECORDS.format(domain=domains[3])]
 
