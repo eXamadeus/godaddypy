@@ -1,5 +1,7 @@
-|travis| |climate|
+|downloads| |travis| |climate|
 
+.. |downloads| image:: https://img.shields.io/pypi/dm/godaddypy.svg
+    :target: https://pypi.python.org/pypi/godaddypy
 .. |travis| image:: https://travis-ci.org/eXamadeus/godaddypy.svg?branch=master
     :target: https://travis-ci.org/eXamadeus/godaddypy
 .. |climate| image:: https://codeclimate.com/github/eXamadeus/godaddypy/badges/gpa.svg
