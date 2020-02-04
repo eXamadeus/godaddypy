@@ -2,6 +2,8 @@ from __future__ import unicode_literals
 
 import logging
 import sys
+from enum import Enum
+from typing import List
 
 import requests
 
@@ -10,6 +12,7 @@ try:
     from urllib.parse import urljoin
 except ImportError:
     # python2.x
+    # noinspection PyUnresolvedReferences
     from urlparse import urljoin
 
 __all__ = ['Client', 'BadResponse']
@@ -23,6 +26,11 @@ class Client(object):
 
     This client is used to connect to the GoDaddy API and to perform requests with said API.
     """
+
+    class Domain(Enum):
+        AUTH_CODE = 'authCode'
+        CONTACTS = 'contacts'
+        NAME_SERVERS = 'nameServers'
 
     def __init__(self, account, log_level=None, api_base_url=GODADDY_API_BASE_URL, api_version=GODADDY_API_VERSION):
         """Create a new `godaddypy.Client` object
@@ -134,12 +142,12 @@ class Client(object):
         url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
         return self._get_json_from_response(url)
 
-    def get_domains(self):
+    def get_domains(self, **params) -> List[str]:
         """Returns a list of domains for the authenticated user.
+        :param params:   Dict of query params to send with the domains request
         """
         url = self.API_TEMPLATE + self.DOMAINS
-        data = self._get_json_from_response(url)
-
+        data = self._get_json_from_response(url, params=params)
         domains = list()
         for item in data:
             domain = item['domain']
@@ -223,6 +231,7 @@ class Client(object):
         if domains is None:
             domains = self.get_domains()
         elif sys.version_info < (3, 0):
+            # noinspection PyUnresolvedReferences
             if isinstance(domains, (str, unicode)):
                 domains = [domains]
         elif sys.version_info >= (3, 0):
@@ -239,6 +248,7 @@ class Client(object):
                 r_ip = str(record['data'])
 
                 if not r_ip == ip:
+                    # noinspection PyUnresolvedReferences
                     if (subdomains is None or
                             (isinstance(subdomains, (unicode, str)) and r_name == subdomains) or
                             r_name in subdomains):
