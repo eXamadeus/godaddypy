@@ -3,7 +3,6 @@ from __future__ import unicode_literals
 import logging
 import sys
 from enum import Enum
-from typing import List
 
 import requests
 
@@ -142,7 +141,7 @@ class Client(object):
         url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
         return self._get_json_from_response(url)
 
-    def get_domains(self, **params) -> List[str]:
+    def get_domains(self, **params):
         """Returns a list of domains for the authenticated user.
         :param params:   Dict of query params to send with the domains request
         """
