@@ -62,9 +62,11 @@ class Client(object):
         elif name is None and record_type is not None:
             url += self.RECORDS_TYPE.format(domain=domain, type=record_type)
         elif name is not None and record_type is None:
-            raise ValueError("If name is specified, type must also be specified")
+            raise ValueError(
+                "If name is specified, type must also be specified")
         else:
-            url += self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+            url += self.RECORDS_TYPE_NAME.format(
+                domain=domain, type=record_type, name=name)
 
         return url
 
@@ -75,7 +77,8 @@ class Client(object):
         return self._request_submit(requests.get, url=url, json=json, **kwargs).json()
 
     def _log_response_from_method(self, req_type, resp):
-        self.logger.debug('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
+        self.logger.debug('[{req_type}] response: {resp}'.format(
+            resp=resp, req_type=req_type.upper()))
         self.logger.debug('Response data: {}'.format(resp.content))
 
     def _patch(self, url, json=None, **kwargs):
@@ -159,7 +162,7 @@ class Client(object):
         """
          Update an existing domain via PATCH /v1/domains/{domain}
          https://developer.godaddy.com/doc#!/_v1_domains/update
-         
+
          currently it supports ( all optional )
             locked = boolean
             nameServers = list
@@ -185,9 +188,11 @@ class Client(object):
         :param name: the name of the record(s) to retrieve
         """
 
-        url = self._build_record_url(domain, record_type=record_type, name=name)
+        url = self._build_record_url(
+            domain, record_type=record_type, name=name)
         data = self._get_json_from_response(url)
-        self.logger.debug('Retrieved {} record(s) from {}.'.format(len(data), domain))
+        self.logger.debug(
+            'Retrieved {} record(s) from {}.'.format(len(data), domain))
 
         return data
 
@@ -203,7 +208,8 @@ class Client(object):
         :return: True if no exceptions occurred
         """
 
-        url = self._build_record_url(domain, name=name, record_type=record_type)
+        url = self._build_record_url(
+            domain, name=name, record_type=record_type)
         self._put(url, json=records)
 
         # If we didn't get any exceptions, return True to let the user know
@@ -231,7 +237,7 @@ class Client(object):
             domains = self.get_domains()
         elif sys.version_info < (3, 0):
             # noinspection PyUnresolvedReferences
-            if isinstance(domains, (str, unicode)):
+            if isinstance(domains, (str)):
                 domains = [domains]
         elif sys.version_info >= (3, 0):
             if isinstance(domains, str):
@@ -249,7 +255,7 @@ class Client(object):
                 if not r_ip == ip:
                     # noinspection PyUnresolvedReferences
                     if (subdomains is None or
-                            (isinstance(subdomains, (unicode, str)) and r_name == subdomains) or
+                            (isinstance(subdomains, (str)) and r_name == subdomains) or
                             r_name in subdomains):
                         record.update(data=str(ip))
                         self.update_record(domain, record)
@@ -305,7 +311,9 @@ class Client(object):
         if name is None:
             name = record['name']
 
-        url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+        url = self.API_TEMPLATE + \
+            self.RECORDS_TYPE_NAME.format(
+                domain=domain, type=record_type, name=name)
         self._put(url, json=[record])
         self.logger.info(
             'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
