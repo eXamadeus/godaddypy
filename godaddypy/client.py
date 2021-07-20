@@ -144,11 +144,17 @@ class Client(object):
         url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
         return self._get_json_from_response(url)
 
-    def get_domains(self, **params):
+    def get_domains(self, limit=1000, marker=None, **params):
         """Returns a list of domains for the authenticated user.
+
+        :param limit: maximum number of domains to return (max: 1000)
+        :param marker: marker domain to use as offset in results
         :param params:   Dict of query params to send with the domains request
         """
         url = self.API_TEMPLATE + self.DOMAINS
+        params['limit'] = limit
+        if marker:
+            params['marker'] = marker
         data = self._get_json_from_response(url, params=params)
         domains = list()
         for item in data:
@@ -179,17 +185,19 @@ class Client(object):
         self._patch(url, json=update)
         self.logger.info("Updated domain {} with {}".format(domain, update))
 
-    def get_records(self, domain, record_type=None, name=None):
+    def get_records(self, domain, record_type=None, name=None, offset=1, limit=500):
         """Returns records from a single domain.  You can specify type/name as filters for the records returned.  If
         you specify a name you MUST also specify a type.
 
         :param domain: the domain to get DNS information from
         :param record_type: the type of record(s) to retrieve
         :param name: the name of the record(s) to retrieve
+        :param offset: result page offset (starting at 1)
+        :param limit: maximum number of elements to return (max: 500)
         """
 
         url = self._build_record_url(domain, record_type=record_type, name=name)
-        data = self._get_json_from_response(url)
+        data = self._get_json_from_response(url, params=dict(limit=limit, offset=offset))
         self.logger.debug('Retrieved {} record(s) from {}.'.format(len(data), domain))
 
         return data
