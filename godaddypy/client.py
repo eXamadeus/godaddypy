@@ -308,7 +308,7 @@ class Client(object):
         url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
         self._put(url, json=[record])
         self.logger.info(
-            'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
+            'Updated record. Domain {} name {} type {}'.format(domain, name, record_type))
 
         # If we didn't get any exceptions, return True to let the user know
         return True
