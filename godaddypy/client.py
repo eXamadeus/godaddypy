@@ -84,6 +84,9 @@ class Client(object):
     def _put(self, url, json=None, **kwargs):
         return self._request_submit(requests.put, url=url, json=json, **kwargs)
 
+    def _delete(self, url, json=None, **kwargs):
+        return self._request_submit(requests.delete, url=url, json=json, **kwargs)
+
     def _request_submit(self, func, **kwargs):
         """A helper function that will wrap any requests we make.
 
@@ -141,11 +144,17 @@ class Client(object):
         url = self.API_TEMPLATE + self.DOMAIN_INFO.format(domain=domain)
         return self._get_json_from_response(url)
 
-    def get_domains(self, **params):
+    def get_domains(self, limit=1000, marker=None, **params):
         """Returns a list of domains for the authenticated user.
+
+        :param limit: maximum number of domains to return (max: 1000)
+        :param marker: marker domain to use as offset in results
         :param params:   Dict of query params to send with the domains request
         """
         url = self.API_TEMPLATE + self.DOMAINS
+        params['limit'] = limit
+        if marker:
+            params['marker'] = marker
         data = self._get_json_from_response(url, params=params)
         domains = list()
         for item in data:
@@ -176,17 +185,19 @@ class Client(object):
         self._patch(url, json=update)
         self.logger.info("Updated domain {} with {}".format(domain, update))
 
-    def get_records(self, domain, record_type=None, name=None):
+    def get_records(self, domain, record_type=None, name=None, offset=1, limit=500):
         """Returns records from a single domain.  You can specify type/name as filters for the records returned.  If
         you specify a name you MUST also specify a type.
 
         :param domain: the domain to get DNS information from
         :param record_type: the type of record(s) to retrieve
         :param name: the name of the record(s) to retrieve
+        :param offset: result page offset (starting at 1)
+        :param limit: maximum number of elements to return (max: 500)
         """
 
         url = self._build_record_url(domain, record_type=record_type, name=name)
-        data = self._get_json_from_response(url)
+        data = self._get_json_from_response(url, params=dict(limit=limit, offset=offset))
         self.logger.debug('Retrieved {} record(s) from {}.'.format(len(data), domain))
 
         return data
@@ -257,14 +268,8 @@ class Client(object):
         # If we didn't get any exceptions, return True to let the user know
         return True
 
-    def delete_records(self, domain, name, record_type=None):
-        """Deletes records by name.  You can also add a record type, which will only delete records with the
-        specified type/name combo.  If no record type is specified, ALL records that have a matching name will be
-        deleted.
-
-        This is haphazard functionality.   I DO NOT recommend using this in Production code, as your entire DNS record
-        set could be deleted, depending on the fickleness of GoDaddy.  Unfortunately, they do not expose a proper
-        "delete record" call, so there isn't much one can do here...
+    def delete_records(self, domain, name, record_type='A'):
+        """Deletes records by name and type
 
         :param domain: the domain to delete records from
         :param name: the name of records to remove
@@ -272,20 +277,8 @@ class Client(object):
 
         :return: True if no exceptions occurred
         """
-
-        records = self.get_records(domain)
-        if records is None:
-            return False  # we don't want to replace the records with nothing at all
-        save = list()
-        deleted = 0
-        for record in records:
-            if (record_type == str(record['type']) or record_type is None) and name == str(record['name']):
-                deleted += 1
-            else:
-                save.append(record)
-
-        self.replace_records(domain, records=save)
-        self.logger.info("Deleted {} records @ {}".format(deleted, domain))
+        url = self._build_record_url(domain=domain, record_type=record_type, name=name)
+        self._delete(url=url)
 
         # If we didn't get any exceptions, return True to let the user know
         return True
