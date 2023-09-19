@@ -321,7 +321,7 @@ class Client(object):
         self._put(url, json=[record])
         self.logger.info(
             "Updated record. Domain {} name {} type {}".format(
-                domain, str(record["name"]), str(record["type"])
+                domain, name, record_type
             )
         )
 
