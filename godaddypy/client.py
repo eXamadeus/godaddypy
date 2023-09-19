@@ -1,7 +1,6 @@
 from __future__ import unicode_literals
 
 import logging
-import sys
 from enum import Enum
 
 import requests
@@ -70,9 +69,7 @@ class Client(object):
         elif name is not None and record_type is None:
             raise ValueError("If name is specified, type must also be specified")
         else:
-            url += self.RECORDS_TYPE_NAME.format(
-                domain=domain, type=record_type, name=name
-            )
+            url += self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
 
         return url
 
@@ -83,9 +80,7 @@ class Client(object):
         return self._request_submit(requests.get, url=url, json=json, **kwargs).json()
 
     def _log_response_from_method(self, req_type, resp):
-        self.logger.debug(
-            "[{req_type}] response: {resp}".format(resp=resp, req_type=req_type.upper())
-        )
+        self.logger.debug("[{req_type}] response: {resp}".format(resp=resp, req_type=req_type.upper()))
         self.logger.debug("Response data: {}".format(resp.content))
 
     def _patch(self, url, json=None, **kwargs):
@@ -207,9 +202,7 @@ class Client(object):
         """
 
         url = self._build_record_url(domain, record_type=record_type, name=name)
-        data = self._get_json_from_response(
-            url, params=dict(limit=limit, offset=offset)
-        )
+        data = self._get_json_from_response(url, params=dict(limit=limit, offset=offset))
         self.logger.debug("Retrieved {} record(s) from {}.".format(len(data), domain))
 
         return data
@@ -252,13 +245,8 @@ class Client(object):
 
         if domains is None:
             domains = self.get_domains()
-        elif sys.version_info < (3, 0):
-            # noinspection PyUnresolvedReferences
-            if isinstance(domains, (str, unicode)):
-                domains = [domains]
-        elif sys.version_info >= (3, 0):
-            if isinstance(domains, str):
-                domains = [domains]
+        elif isinstance(domains, str):
+            domains = [domains]
         else:
             # we have a tuple, set, or something else, try to convert it to a list
             domains = list(domains)
@@ -273,10 +261,7 @@ class Client(object):
                     # noinspection PyUnresolvedReferences
                     if (
                         subdomains is None
-                        or (
-                            isinstance(subdomains, (unicode, str))
-                            and r_name == subdomains
-                        )
+                        or (isinstance(subdomains, str) and r_name == subdomains)
                         or r_name in subdomains
                     ):
                         record.update(data=str(ip))
@@ -315,15 +300,9 @@ class Client(object):
         if name is None:
             name = record["name"]
 
-        url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(
-            domain=domain, type=record_type, name=name
-        )
+        url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
         self._put(url, json=[record])
-        self.logger.info(
-            "Updated record. Domain {} name {} type {}".format(
-                domain, name, record_type
-            )
-        )
+        self.logger.info("Updated record. Domain {} name {} type {}".format(domain, name, record_type))
 
         # If we didn't get any exceptions, return True to let the user know
         return True

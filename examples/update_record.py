@@ -6,6 +6,7 @@ import pif
 
 # Partial imports
 from godaddypy import Client, Account
+from godaddypy.client import BadResponse
 
 domain = "example.com"
 a_record = "www"
@@ -23,6 +24,6 @@ try:
                 print("Update ended with no Exception.")
         else:
             print("No DNS update needed.")
-except:
-    print(sys.exc_info()[1])
+except ValueError | BadResponse as e:
+    print(e)
     sys.exit()

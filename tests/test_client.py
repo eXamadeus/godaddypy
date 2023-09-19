@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 
 import logging
 
-import callee
+# noinspection PyPackageRequirements
+from callee import EndsWith
+
+# noinspection PyPackageRequirements
 from mock import patch
 
 from godaddypy import Account, Client
@@ -10,6 +13,10 @@ from godaddypy.client import BadResponse
 
 
 class TestClient(object):
+    account: Account
+    client: Client
+    logger: logging.Logger
+
     @classmethod
     def setup_class(cls):
         cls.logger = logging.getLogger(cls.__name__)
@@ -52,7 +59,7 @@ class TestClient(object):
     def test_update_record(self, put_mock):
         self.client.update_record("test.com", self.fake_records[0])
         put_mock.assert_called_once_with(
-            "https://api.ote-godaddy.com/v1/domains/test.com/records/A/test1",
+            EndsWith("/v1/domains/test.com/records/A/test1"),
             json=[self.fake_records[0]],
         )
 
@@ -69,9 +76,9 @@ class TestClient(object):
         expected.update(data=new_ip)
         update_mock.assert_called_once_with("abc.com", expected)
 
-    @patch.object(Client, "_put")
+    @patch.object(Client, "_delete")
     @patch.object(Client, "get_records")
-    def test_delete_records(self, get_mock, put_mock):
+    def test_delete_records(self, get_mock, delete_mock):
         fake_domain = "apple.com"
         fake_records = [
             {"name": "test1", "data": "127.0.0.1", "type": "A"},
@@ -82,7 +89,7 @@ class TestClient(object):
 
         self.client.delete_records(fake_domain, "test2")
 
-        put_mock.assert_called_once_with(callee.String(), json=[fake_records[0]])
+        delete_mock.assert_called_once_with(url=EndsWith("/v1/domains/apple.com/records/A/test2"))
 
     def test_account_without_delegate(self):
         _PRIVATE_KEY = "blahdeyblah"
@@ -100,9 +107,7 @@ class TestClient(object):
         _PRIVATE_KEY = "blahdeyblah"
         _PUBLIC_KEY = "hooeybalooooooeryasdfasdfsdfs"
 
-        acct = Account(
-            api_key=_PUBLIC_KEY, api_secret=_PRIVATE_KEY, delegate=_DELEGATE_ID
-        )
+        acct = Account(api_key=_PUBLIC_KEY, api_secret=_PRIVATE_KEY, delegate=_DELEGATE_ID)
 
         assert "X-Shopper-Id" in acct.get_headers()
         assert "Authorization" in acct.get_headers()
@@ -118,15 +123,10 @@ class TestClient(object):
 
         expected = [
             self.client.API_TEMPLATE
-            + self.client.RECORDS_TYPE_NAME.format(
-                domain=domains[0], name=names[0], type=types[0]
-            ),
+            + self.client.RECORDS_TYPE_NAME.format(domain=domains[0], name=names[0], type=types[0]),
+            self.client.API_TEMPLATE + self.client.RECORDS_TYPE.format(domain=domains[1], type=types[1]),
             self.client.API_TEMPLATE
-            + self.client.RECORDS_TYPE.format(domain=domains[1], type=types[1]),
-            self.client.API_TEMPLATE
-            + self.client.RECORDS_TYPE_NAME.format(
-                domain=domains[2], name=names[2], type=types[2]
-            ),
+            + self.client.RECORDS_TYPE_NAME.format(domain=domains[2], name=names[2], type=types[2]),
             self.client.API_TEMPLATE + self.client.RECORDS.format(domain=domains[3]),
         ]
 
@@ -134,17 +134,11 @@ class TestClient(object):
 
         if len(domains) == len(names) == len(types) == len(expected):
             for i, val in enumerate(domains):
-                urls.append(
-                    self.client._build_record_url(
-                        val, name=names[i], record_type=types[i]
-                    )
-                )
+                urls.append(self.client._build_record_url(val, name=names[i], record_type=types[i]))
                 assert urls[i] == expected[i]
         else:
             raise ValueError(
-                "The test {} has invalid internal parameters!".format(
-                    self.test_build_record_url_happy_path.__name__
-                )
+                "The test {} has invalid internal parameters!".format(self.test_build_record_url_happy_path.__name__)
             )
 
     def test_build_record_url_raise_value_error(self):

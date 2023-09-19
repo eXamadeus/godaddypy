@@ -1,9 +1,7 @@
-|downloads| |travis| |climate|
+|downloads| |climate|
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/godaddypy.svg
     :target: https://pypi.python.org/pypi/godaddypy
-.. |travis| image:: https://travis-ci.org/eXamadeus/godaddypy.svg?branch=master
-    :target: https://travis-ci.org/eXamadeus/godaddypy
 .. |climate| image:: https://codeclimate.com/github/eXamadeus/godaddypy/badges/gpa.svg
     :target: https://codeclimate.com/github/eXamadeus/godaddypy
 
@@ -11,10 +9,9 @@ GoDaddyPy
 ==========
 Python library useful for updating DNS settings through the GoDaddy v1 API.
 
-Source located @ https://github.com/eXamadeus/godaddypy
-Migrated from @ https://github.com/eXamadeus-zz/godaddypy
-
-This concept was spawned from observerss' pygodaddy @ https://github.com/observerss/pygodaddy.
+- Source: https://github.com/eXamadeus/godaddypy
+- Migrated from: https://github.com/eXamadeus-zz/godaddypy
+- Concept originated from observerss' pygodaddy @ https://github.com/observerss/pygodaddy.
 
 Setup
 --------
