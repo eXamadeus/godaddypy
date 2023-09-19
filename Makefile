@@ -37,6 +37,13 @@ install-dev: venv ## Install requirements for development into venv
 install-lib: venv ## Install requirements for godaddypy into venv
 	@$(VENV_RUN); $(PIP_CMD) install -r requirements.txt
 
+dist: ## Build distributions
+	@$(VENV_RUN); pip install --upgrade twine;
+	python setup.py sdist bdist_wheel
+
+publish: clean-dist dist  ## Publish the library to the central PyPi repository
+	$(VENV_RUN); twine upload dist/*
+
 test: ## Run tests via PyTest
 	@$(VENV_RUN); pytest
 
@@ -56,4 +63,4 @@ clean-dist: ## Clean up python distribution directories
 	rm -rf dist/
 	rm -rf *.egg-info
 
-.PHONY: usage freeze pre-commit install install-dev install-lib test lint format clean clean-dist
+.PHONY: usage freeze pre-commit install install-dev install-lib dist publish test lint format clean clean-dist
