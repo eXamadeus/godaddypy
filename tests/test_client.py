@@ -2,7 +2,10 @@ from __future__ import unicode_literals
 
 import logging
 
+# noinspection PyPackageRequirements
 import callee
+
+# noinspection PyPackageRequirements
 from mock import patch
 
 from godaddypy import Account, Client
@@ -10,6 +13,10 @@ from godaddypy.client import BadResponse
 
 
 class TestClient(object):
+    account: Account
+    client: Client
+    logger: logging.Logger
+
     @classmethod
     def setup_class(cls):
         cls.logger = logging.getLogger(cls.__name__)
@@ -69,9 +76,9 @@ class TestClient(object):
         expected.update(data=new_ip)
         update_mock.assert_called_once_with("abc.com", expected)
 
-    @patch.object(Client, "_put")
+    @patch.object(Client, "_delete")
     @patch.object(Client, "get_records")
-    def test_delete_records(self, get_mock, put_mock):
+    def test_delete_records(self, get_mock, delete_mock):
         fake_domain = "apple.com"
         fake_records = [
             {"name": "test1", "data": "127.0.0.1", "type": "A"},
@@ -82,7 +89,9 @@ class TestClient(object):
 
         self.client.delete_records(fake_domain, "test2")
 
-        put_mock.assert_called_once_with(callee.String(), json=[fake_records[0]])
+        delete_mock.assert_called_once_with(
+            url="https://api.ote-godaddy.com/v1/domains/apple.com/records/A/test2"
+        )
 
     def test_account_without_delegate(self):
         _PRIVATE_KEY = "blahdeyblah"

@@ -1,0 +1,31 @@
+name: Pull Request CI
+on: [push]
+
+jobs:
+  linting:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Black
+        uses: microsoft/action-python@0.7.0
+        with:
+          black: true
+      - name: Flake8
+        uses: microsoft/action-python@0.7.0
+        with:
+          flake8: true
+
+  pytest:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        python-version:
+          - 3.8
+          - 3.9
+          - 3.10
+          - 3.11
+    steps:
+      - name: Pytest
+        uses: microsoft/action-python@0.7.0
+        with:
+          testing: true
+          python_version: ${{ matrix.python-version }}

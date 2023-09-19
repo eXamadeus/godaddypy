@@ -31,8 +31,8 @@ install-dev: venv ## Install requirements for development into venv
 install-lib: venv ## Install requirements for godaddypy into venv
 	@$(VENV_RUN); $(PIP_CMD) install -r requirements.txt
 
-test: ## Run tests via nose
-	@$(VENV_RUN); nosetests
+test: ## Run tests via PyTest
+	@$(VENV_RUN); pytest
 
 lint: ## Run linter
 	@$(VENV_RUN); python -m pflake8 --show-source
