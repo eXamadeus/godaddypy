@@ -39,8 +39,10 @@ Also see `/examples` for more examples.
     >>> from godaddypy import Client, Account
     >>>
     >>> my_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY')
-    >>> delegate_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY', delegate='DELEGATE_ID')
     >>> client = Client(my_acct)
+    >>>
+    >>> # Or if you want to use a delegate...
+    >>> delegate_acct = Account(api_key='PUBLIC_KEY', api_secret='SECRET_KEY', delegate='DELEGATE_ID')
     >>> delegate_client = Client(delegate_acct)
     >>>
     >>> client.get_domains()
