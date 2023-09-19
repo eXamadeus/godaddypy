@@ -9,10 +9,12 @@ jobs:
       - name: Black
         uses: microsoft/action-python@0.7.0
         with:
+          workdir: .
           black: true
       - name: Flake8
         uses: microsoft/action-python@0.7.0
         with:
+          workdir: .
           flake8: true
 
   pytest:
@@ -29,5 +31,6 @@ jobs:
       - name: Pytest
         uses: microsoft/action-python@0.7.0
         with:
+          workdir: .
           testing: true
           python_version: ${{ matrix.python-version }}
