@@ -1,4 +1,4 @@
-VENV_BIN ?= python3 -m venv
+VENV_BIN ?= python3.11 -m venv
 VENV_DIR ?= venv
 PIP_CMD ?= pip3
 
@@ -23,7 +23,13 @@ venv: $(VENV_ACTIVATE) ## Create a new (empty) virtual environment
 freeze: ## Run pip freeze -l in the virtual environment
 	@$(VENV_RUN); pip freeze -l
 
-install: install-lib install-dev ## Install full dependencies into venv
+pre-commit: ## Install pre-commit hooks
+	@pre-commit install > /dev/null
+
+install: ## Install full dependencies into venv
+	make install-lib
+	make install-dev
+	@make pre-commit
 
 install-dev: venv ## Install requirements for development into venv
 	@$(VENV_RUN); $(PIP_CMD) install -r requirements-dev.txt
@@ -50,4 +56,4 @@ clean-dist: ## Clean up python distribution directories
 	rm -rf dist/
 	rm -rf *.egg-info
 
-.PHONY: usage freeze install install-dev install-lib test lint format clean clean-dist
+.PHONY: usage freeze pre-commit install install-dev install-lib test lint format clean clean-dist
