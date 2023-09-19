@@ -1,5 +1,51 @@
 __all__ = ["Account"]
 
+import logging
+from dataclasses import dataclass
+from os import environ, path, makedirs
+from pathlib import Path
+from sys import stdout
+
+import yaml
+from configloader import ConfigLoader
+
+
+@dataclass
+class Configuration:
+    key: str = ""
+    secret: str = ""
+
+
+class InteractivePrompter:
+    __masked_fields: set = {
+        "GODADDY_API_KEY",
+        "GODADDY_API_SECRET",
+    }
+
+    def __init__(self) -> None:
+        super().__init__()
+
+    @staticmethod
+    def mask_value(current_value):
+        if current_value is None:
+            return "None"
+        else:
+            return ("*" * 16) + current_value[-4:]
+
+    @staticmethod
+    def input(prompt):
+        stdout.write(prompt)
+        stdout.flush()
+        return input()
+
+    def get_value(self, current_value, config_name, prompt_text=""):
+        if config_name in self.__masked_fields:
+            current_value = "None" if not current_value else self.mask_value(current_value)
+        response = self.input("%s [%s]: " % (prompt_text, current_value))
+        if not response:
+            response = None
+        return response
+
 
 class Account(object):
     """The GoDaddyPy Account.
@@ -7,12 +53,20 @@ class Account(object):
     An account is used to provide authentication headers to the `godaddypy.Client`.
     """
 
-    _api_key = None
-    _api_secret = None
+    SSO_KEY_TEMPLATE = "sso-key {api_key}:{api_secret}"
 
-    _SSO_KEY_TEMPLATE = "sso-key {api_key}:{api_secret}"
+    __api_key = None
+    __api_secret = None
 
-    def __init__(self, api_key, api_secret, delegate=None):
+    _logger = logging.getLogger("GoDaddyPy.Account")
+    _log_level = logging.ERROR
+    _config_path = Path(
+        path.expanduser(environ.get("XDG_CONFIG_HOME", "~/.config")),
+        "godaddypy/credentials.yml",
+    )
+    _config = None
+
+    def __init__(self, api_key=None, api_secret=None, delegate=None, log_level=None):
         """Create a new `godaddypy.Account` object.
 
         :type api_key: str or unicode
@@ -22,15 +76,73 @@ class Account(object):
         :param api_secret: The API_SECRET provided by GoDaddy
         """
 
-        self._api_key = api_key
-        self._api_secret = api_secret
+        if log_level is not None:
+            self._logger.setLevel(log_level)
+        else:
+            self._logger.setLevel(self._log_level)
+
+        # Get config file according to XDG Base Directory Specifications
+        # See: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
         self._delegate = delegate
+
+        if api_key:
+            self.__api_key = api_key
+        if api_secret:
+            self.__api_secret = api_secret
+
+        if self.__api_key and self.__api_secret:
+            return  # prefer the passed values
+
+        # otherwise look up configuration
+        config = self.__parse_configuration()
+
+        if not config:
+            raise ValueError("Please use godaddypy.configure() or pass api_key and api_secret to Account()")
+
+        self.__api_key = self.__api_key or (config.key if config else api_key)
+        self.__api_secret = self.__api_secret or (config.secret if config else api_secret)
+        self._config = config
+
+    def __parse_configuration(self) -> Configuration:
+        file_config = self.__parse_file()
+
+        if file_config and file_config.key and file_config.secret:
+            return file_config
+
+        return self.__parse_env()
+
+    def __parse_file(self) -> Configuration | None:
+        if not path.exists(self._config_path):
+            return None
+
+        config = ConfigLoader()
+
+        try:
+            with open(self._config_path, mode="r") as config_file:
+                config.update_from_yaml_file(config_file)
+        except FileNotFoundError:
+            self._logger.debug("Unable to find credentials file. Trying environment...")
+            return None
+        except (TypeError, Exception):
+            self._logger.error("Error while loading credentials file. File will be overwritten.")
+            return None
+
+        key, secret = config.get("key"), config.get("secret")
+
+        return Configuration(key=key, secret=secret)
+
+    @staticmethod
+    def __parse_env() -> Configuration:
+        config = ConfigLoader()
+        config.update_from_env_namespace("GODADDY_API")
+
+        return Configuration(key=config["KEY"], secret=config["SECRET"])
 
     def get_headers(self):
         headers = {
-            "Authorization": self._SSO_KEY_TEMPLATE.format(
-                api_key=self._api_key,
-                api_secret=self._api_secret,
+            "Authorization": self.SSO_KEY_TEMPLATE.format(
+                api_key=self.__api_key,
+                api_secret=self.__api_secret,
             )
         }
 
@@ -38,3 +150,17 @@ class Account(object):
             headers["X-Shopper-Id"] = self._delegate
 
         return headers
+
+    def configure(self):
+        config = self._config if self._config else self.__parse_configuration()
+        prompter = InteractivePrompter()
+
+        key = prompter.get_value(config.key, "GODADDY_API_KEY", "Enter GoDaddy API Key")
+        secret = prompter.get_value(config.secret, "GODADDY_API_KEY", "Enter GoDaddy API Secret")
+
+        parent = self._config_path.parent
+        if not path.exists(parent):
+            makedirs(parent)
+
+        with open(self._config_path, mode="w") as config_file:
+            yaml.dump({"key": key or config.key, "secret": secret or config.secret}, config_file)
