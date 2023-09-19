@@ -34,6 +34,8 @@ Second, install GoDaddyPy with pip.
 Examples
 --------
 
+Also see `/examples` for more examples.
+
 .. code-block:: python
 
     >>> from godaddypy import Client, Account

@@ -14,10 +14,10 @@ except ImportError:
     # noinspection PyUnresolvedReferences
     from urlparse import urljoin
 
-__all__ = ['Client', 'BadResponse']
+__all__ = ["Client", "BadResponse"]
 
-GODADDY_API_BASE_URL = 'https://api.godaddy.com/'
-GODADDY_API_VERSION = 'v1'
+GODADDY_API_BASE_URL = "https://api.godaddy.com/"
+GODADDY_API_VERSION = "v1"
 
 
 class Client(object):
@@ -27,11 +27,17 @@ class Client(object):
     """
 
     class Domain(Enum):
-        AUTH_CODE = 'authCode'
-        CONTACTS = 'contacts'
-        NAME_SERVERS = 'nameServers'
+        AUTH_CODE = "authCode"
+        CONTACTS = "contacts"
+        NAME_SERVERS = "nameServers"
 
-    def __init__(self, account, log_level=None, api_base_url=GODADDY_API_BASE_URL, api_version=GODADDY_API_VERSION):
+    def __init__(
+        self,
+        account,
+        log_level=None,
+        api_base_url=GODADDY_API_BASE_URL,
+        api_version=GODADDY_API_VERSION,
+    ):
         """Create a new `godaddypy.Client` object
 
         :type account: godaddypy.Account
@@ -39,18 +45,18 @@ class Client(object):
         """
 
         # Logging setup
-        self.logger = logging.getLogger('GoDaddyPy.Client')
+        self.logger = logging.getLogger("GoDaddyPy.Client")
         # Explicit override of logging level
         if log_level is not None:
             self.logger.setLevel(log_level)
 
         # Templates
         self.API_TEMPLATE = urljoin(api_base_url, api_version)
-        self.DOMAINS = '/domains'
-        self.DOMAIN_INFO = '/domains/{domain}'
-        self.RECORDS = '/domains/{domain}/records'
-        self.RECORDS_TYPE = '/domains/{domain}/records/{type}'
-        self.RECORDS_TYPE_NAME = '/domains/{domain}/records/{type}/{name}'
+        self.DOMAINS = "/domains"
+        self.DOMAIN_INFO = "/domains/{domain}"
+        self.RECORDS = "/domains/{domain}/records"
+        self.RECORDS_TYPE = "/domains/{domain}/records/{type}"
+        self.RECORDS_TYPE_NAME = "/domains/{domain}/records/{type}/{name}"
 
         self.account = account
 
@@ -64,7 +70,9 @@ class Client(object):
         elif name is not None and record_type is None:
             raise ValueError("If name is specified, type must also be specified")
         else:
-            url += self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+            url += self.RECORDS_TYPE_NAME.format(
+                domain=domain, type=record_type, name=name
+            )
 
         return url
 
@@ -75,8 +83,10 @@ class Client(object):
         return self._request_submit(requests.get, url=url, json=json, **kwargs).json()
 
     def _log_response_from_method(self, req_type, resp):
-        self.logger.debug('[{req_type}] response: {resp}'.format(resp=resp, req_type=req_type.upper()))
-        self.logger.debug('Response data: {}'.format(resp.content))
+        self.logger.debug(
+            "[{req_type}] response: {resp}".format(resp=resp, req_type=req_type.upper())
+        )
+        self.logger.debug("Response data: {}".format(resp.content))
 
     def _patch(self, url, json=None, **kwargs):
         return self._request_submit(requests.patch, url=url, json=json, **kwargs)
@@ -102,8 +112,8 @@ class Client(object):
 
     @staticmethod
     def _validate_response_success(response):
-        """ Only raise exceptions for 4xx/5xx errors because GoDaddy doesn't
-        always return 200 for a correct request """
+        """Only raise exceptions for 4xx/5xx errors because GoDaddy doesn't
+        always return 200 for a correct request"""
         try:
             response.raise_for_status()
         except Exception:
@@ -128,7 +138,7 @@ class Client(object):
         """
         url = self.API_TEMPLATE + self.RECORDS.format(domain=domain)
         self._patch(url, json=records)
-        self.logger.debug('Added records @ {}'.format(records))
+        self.logger.debug("Added records @ {}".format(records))
 
         # If we didn't get any exceptions, return True to let the user know
         return True
@@ -152,15 +162,15 @@ class Client(object):
         :param params:   Dict of query params to send with the domains request
         """
         url = self.API_TEMPLATE + self.DOMAINS
-        params['limit'] = limit
+        params["limit"] = limit
         if marker:
-            params['marker'] = marker
+            params["marker"] = marker
         data = self._get_json_from_response(url, params=params)
         domains = list()
         for item in data:
-            domain = item['domain']
+            domain = item["domain"]
             domains.append(domain)
-            self.logger.debug('Discovered domains: {}'.format(domain))
+            self.logger.debug("Discovered domains: {}".format(domain))
 
         return domains
 
@@ -168,7 +178,7 @@ class Client(object):
         """
          Update an existing domain via PATCH /v1/domains/{domain}
          https://developer.godaddy.com/doc#!/_v1_domains/update
-         
+
          currently it supports ( all optional )
             locked = boolean
             nameServers = list
@@ -197,8 +207,10 @@ class Client(object):
         """
 
         url = self._build_record_url(domain, record_type=record_type, name=name)
-        data = self._get_json_from_response(url, params=dict(limit=limit, offset=offset))
-        self.logger.debug('Retrieved {} record(s) from {}.'.format(len(data), domain))
+        data = self._get_json_from_response(
+            url, params=dict(limit=limit, offset=offset)
+        )
+        self.logger.debug("Retrieved {} record(s) from {}.".format(len(data), domain))
 
         return data
 
@@ -220,7 +232,7 @@ class Client(object):
         # If we didn't get any exceptions, return True to let the user know
         return True
 
-    def update_ip(self, ip, record_type='A', domains=None, subdomains=None):
+    def update_ip(self, ip, record_type="A", domains=None, subdomains=None):
         """Update the IP address in all records, specified by type, to the value of ip.  Returns True if no
         exceptions occurred during the update.  If no domains are provided, all domains returned from
         self.get_domains() will be updated.  By default, only A records are updated.
@@ -254,21 +266,26 @@ class Client(object):
         for domain in domains:
             a_records = self.get_records(domain, record_type=record_type)
             for record in a_records:
-                r_name = str(record['name'])
-                r_ip = str(record['data'])
+                r_name = str(record["name"])
+                r_ip = str(record["data"])
 
                 if not r_ip == ip:
                     # noinspection PyUnresolvedReferences
-                    if (subdomains is None or
-                            (isinstance(subdomains, (unicode, str)) and r_name == subdomains) or
-                            r_name in subdomains):
+                    if (
+                        subdomains is None
+                        or (
+                            isinstance(subdomains, (unicode, str))
+                            and r_name == subdomains
+                        )
+                        or r_name in subdomains
+                    ):
                         record.update(data=str(ip))
                         self.update_record(domain, record)
 
         # If we didn't get any exceptions, return True to let the user know
         return True
 
-    def delete_records(self, domain, name, record_type='A'):
+    def delete_records(self, domain, name, record_type="A"):
         """Deletes records by name and type
 
         :param domain: the domain to delete records from
@@ -294,14 +311,19 @@ class Client(object):
         :return: True if no exceptions occurred
         """
         if record_type is None:
-            record_type = record['type']
+            record_type = record["type"]
         if name is None:
-            name = record['name']
+            name = record["name"]
 
-        url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(domain=domain, type=record_type, name=name)
+        url = self.API_TEMPLATE + self.RECORDS_TYPE_NAME.format(
+            domain=domain, type=record_type, name=name
+        )
         self._put(url, json=[record])
         self.logger.info(
-            'Updated record. Domain {} name {} type {}'.format(domain, str(record['name']), str(record['type'])))
+            "Updated record. Domain {} name {} type {}".format(
+                domain, str(record["name"]), str(record["type"])
+            )
+        )
 
         # If we didn't get any exceptions, return True to let the user know
         return True
@@ -318,7 +340,7 @@ class Client(object):
         """
 
         records = self.get_records(domain, name=name, record_type=record_type)
-        data = {'data': str(ip)}
+        data = {"data": str(ip)}
         for rec in records:
             rec.update(data)
             self.update_record(domain, rec)
@@ -328,10 +350,9 @@ class Client(object):
 
 
 class BadResponse(Exception):
-
     def __init__(self, message, *args, **kwargs):
         self.message = message
         super(BadResponse, *args, **kwargs)
 
     def __str__(self, *args, **kwargs):
-        return 'Response Data: {}'.format(self.message)
+        return "Response Data: {}".format(self.message)

@@ -1,4 +1,4 @@
-__all__ = ['Account']
+__all__ = ["Account"]
 
 
 class Account(object):
@@ -6,13 +6,14 @@ class Account(object):
 
     An account is used to provide authentication headers to the `godaddypy.Client`.
     """
+
     _api_key = None
     _api_secret = None
 
-    _SSO_KEY_TEMPLATE = 'sso-key {api_key}:{api_secret}'
+    _SSO_KEY_TEMPLATE = "sso-key {api_key}:{api_secret}"
 
     def __init__(self, api_key, api_secret, delegate=None):
-        """Create a new `godadypy.Account` object.
+        """Create a new `godaddypy.Account` object.
 
         :type api_key: str or unicode
         :param api_key: The API_KEY provided by GoDaddy
@@ -27,11 +28,13 @@ class Account(object):
 
     def get_headers(self):
         headers = {
-            'Authorization': self._SSO_KEY_TEMPLATE.format(api_key=self._api_key,
-                                                           api_secret=self._api_secret)
+            "Authorization": self._SSO_KEY_TEMPLATE.format(
+                api_key=self._api_key,
+                api_secret=self._api_secret,
+            )
         }
 
         if self._delegate is not None:
-            headers['X-Shopper-Id'] = self._delegate
+            headers["X-Shopper-Id"] = self._delegate
 
         return headers

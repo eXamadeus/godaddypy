@@ -1,4 +1,0 @@
-mock>=2.0.0
-callee>=0.2.1
-nose>=1.3.7
-coverage>=4.4.1
