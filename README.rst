@@ -67,3 +67,18 @@ Also see `/examples` for more examples.
     >>> client.delete_records('apple.com', name='test')
     True
 ..
+
+Contributing
+------------
+
+If you want to contribute, first off: thank you!
+
+-------------------
+Steps to Contribute
+-------------------
+
+#. Pull the repository
+#. Run `make install` to install the library and development dependencies
+#. Make changes
+#. Add tests
+#. Open a pull request towards the `main` branch
