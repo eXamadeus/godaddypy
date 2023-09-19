@@ -1,4 +1,4 @@
-|downloads| |travis| |climate|
+|downloads| |climate|
 
 .. |downloads| image:: https://img.shields.io/pypi/dm/godaddypy.svg
     :target: https://pypi.python.org/pypi/godaddypy
