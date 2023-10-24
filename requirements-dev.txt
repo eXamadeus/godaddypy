@@ -1,4 +1,4 @@
-black==23.9.1
+black==23.10.1
 callee>=0.2.1
 coverage>=4.4.1
 mock>=2.0.0
