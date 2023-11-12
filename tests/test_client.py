@@ -22,7 +22,7 @@ class TestClient(object):
         cls.logger = logging.getLogger(cls.__name__)
         cls.logger.setLevel(logging.INFO)
 
-        cls.account = Account("", "")
+        cls.account = Account("key", "secret")
         # Create a Client and override the API to use the test API
         cls.client = Client(cls.account, log_level=logging.WARNING)
         cls.client.API_TEMPLATE = "https://api.ote-godaddy.com/v1"

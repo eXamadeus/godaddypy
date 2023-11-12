@@ -81,8 +81,6 @@ class Account(object):
         else:
             self._logger.setLevel(self._log_level)
 
-        # Get config file according to XDG Base Directory Specifications
-        # See: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
         self._delegate = delegate
 
         if api_key:
@@ -93,7 +91,6 @@ class Account(object):
         if self.__api_key and self.__api_secret:
             return  # prefer the passed values
 
-        # otherwise look up configuration
         config = self.__parse_configuration()
 
         if not config:
@@ -104,12 +101,15 @@ class Account(object):
         self._config = config
 
     def __parse_configuration(self) -> Configuration | None:
-        file_config = self.__parse_file()
+        # Get config from environment
+        env_config = self.__parse_env()
 
-        if file_config and file_config.key and file_config.secret:
-            return file_config
+        if env_config and env_config.key and env_config.secret:
+            return env_config
 
-        return self.__parse_env()
+        # Otherwise, get config from file according to XDG Base Directory Specifications
+        # See: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
+        return self.__parse_file()
 
     def __parse_file(self) -> Configuration | None:
         if not self or not path.exists(self._config_path):

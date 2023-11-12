@@ -27,6 +27,32 @@ Second, install GoDaddyPy with pip.
 
     $ pip install godaddypy
 
+GoDaddyPy supports three methods for providing your credentials to the library, which are honored in the following
+order:
+
+1. Passing them directly to the `Account` object
+2. Setting the `GODADDY_API_KEY` and `GODADDY_API_SECRET` environment variables
+3. Storing them in a credentials.yml file
+
+For convenience, a configuration tool has been provided that can be run from your terminal or in Python. This tool will
+prompt for your API key and secret, and store them in a config file in your home directory following the XDG Base
+Directory specification. I have only tested this on Mac, but it should also work on Linux. I recommend env vars for
+Windows and/or CI/CD.
+
+.. code-block:: bash
+
+    $ python -m godaddypy
+
+.. code-block:: python
+
+    >>> from godaddypy import Account
+    >>> acct = Account.configure()
+    Enter GoDaddy API Key [None]: example_key
+    Enter GoDaddy API Secret [None]: example_secret
+    >>> account = Account()
+    >>> account._config
+    Configuration(key='example_key', secret='example_secret')
+
 ..
 
 Examples
