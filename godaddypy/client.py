@@ -5,6 +5,8 @@ from enum import Enum
 
 import requests
 
+from .account import Account
+
 try:
     # python3.x
     from urllib.parse import urljoin
@@ -32,7 +34,7 @@ class Client(object):
 
     def __init__(
         self,
-        account,
+        account=None,
         log_level=None,
         api_base_url=GODADDY_API_BASE_URL,
         api_version=GODADDY_API_VERSION,
@@ -57,7 +59,7 @@ class Client(object):
         self.RECORDS_TYPE = "/domains/{domain}/records/{type}"
         self.RECORDS_TYPE_NAME = "/domains/{domain}/records/{type}/{name}"
 
-        self.account = account
+        self.account = account or Account()
 
     def _build_record_url(self, domain, record_type=None, name=None):
         url = self.API_TEMPLATE

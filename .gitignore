@@ -1,4 +1,6 @@
 # GoDaddyPy Stuff
+.env
+credentials.yaml
 *.log
 /MANIFEST
 godaddypy/accounts.py
