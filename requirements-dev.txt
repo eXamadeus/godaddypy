@@ -4,5 +4,5 @@ coverage>=4.4.1
 mock>=2.0.0
 pif==0.8.2
 pre-commit==3.4.0
-pyproject-flake8==5.0.4.post1
+pyproject-flake8==6.1.0
 pytest==7.4.2
