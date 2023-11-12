@@ -12,7 +12,7 @@ if version_match is None:
 else:
     version = version_match.group(1)
 
-with open("README.md") as file:
+with open("README.rst") as file:
     long_description = file.read()
 
 setup(
