@@ -1,3 +1,3 @@
 from .account import Account
 
-Account().configure()
+Account.configure()

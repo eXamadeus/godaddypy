@@ -53,7 +53,7 @@ class Account(object):
     An account is used to provide authentication headers to the `godaddypy.Client`.
     """
 
-    SSO_KEY_TEMPLATE = "sso-key {api_key}:{api_secret}"
+    _SSO_KEY_TEMPLATE = "sso-key {api_key}:{api_secret}"
 
     __api_key = None
     __api_secret = None
@@ -62,7 +62,7 @@ class Account(object):
     _log_level = logging.ERROR
     _config_path = Path(
         path.expanduser(environ.get("XDG_CONFIG_HOME", "~/.config")),
-        "godaddypy/credentials.yml",
+        "godaddypy/credentials.yaml",
     )
     _config = None
 
@@ -97,13 +97,13 @@ class Account(object):
         config = self.__parse_configuration()
 
         if not config:
-            raise ValueError("Please use godaddypy.configure() or pass api_key and api_secret to Account()")
+            raise ValueError("Please use Account.configure() or pass api_key and api_secret to Account()")
 
         self.__api_key = self.__api_key or (config.key if config else api_key)
         self.__api_secret = self.__api_secret or (config.secret if config else api_secret)
         self._config = config
 
-    def __parse_configuration(self) -> Configuration:
+    def __parse_configuration(self) -> Configuration | None:
         file_config = self.__parse_file()
 
         if file_config and file_config.key and file_config.secret:
@@ -112,7 +112,7 @@ class Account(object):
         return self.__parse_env()
 
     def __parse_file(self) -> Configuration | None:
-        if not path.exists(self._config_path):
+        if not self or not path.exists(self._config_path):
             return None
 
         config = ConfigLoader()
@@ -131,16 +131,19 @@ class Account(object):
 
         return Configuration(key=key, secret=secret)
 
-    @staticmethod
-    def __parse_env() -> Configuration:
+    def __parse_env(self) -> Configuration | None:
         config = ConfigLoader()
         config.update_from_env_namespace("GODADDY_API")
 
-        return Configuration(key=config["KEY"], secret=config["SECRET"])
+        try:
+            return Configuration(key=config["KEY"], secret=config["SECRET"])
+        except KeyError:
+            self._logger.debug("Unable to find credentials in environment.")
+            return None
 
     def get_headers(self):
         headers = {
-            "Authorization": self.SSO_KEY_TEMPLATE.format(
+            "Authorization": self._SSO_KEY_TEMPLATE.format(
                 api_key=self.__api_key,
                 api_secret=self.__api_secret,
             )
@@ -151,12 +154,12 @@ class Account(object):
 
         return headers
 
-    def configure(self):
+    def configure_shell(self):
         config = self._config if self._config else self.__parse_configuration()
         prompter = InteractivePrompter()
 
-        key = prompter.get_value(config.key, "GODADDY_API_KEY", "Enter GoDaddy API Key")
-        secret = prompter.get_value(config.secret, "GODADDY_API_KEY", "Enter GoDaddy API Secret")
+        key = prompter.get_value(getattr(config, "key", None), "GODADDY_API_KEY", "Enter GoDaddy API Key")
+        secret = prompter.get_value(getattr(config, "secret", None), "GODADDY_API_KEY", "Enter GoDaddy API Secret")
 
         parent = self._config_path.parent
         if not path.exists(parent):
@@ -164,3 +167,7 @@ class Account(object):
 
         with open(self._config_path, mode="w") as config_file:
             yaml.dump({"key": key or config.key, "secret": secret or config.secret}, config_file)
+
+    @staticmethod
+    def configure():
+        Account(api_key="api", api_secret="secret").configure_shell()
