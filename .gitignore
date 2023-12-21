@@ -40,3 +40,5 @@ docs/_build/
 godaddypy.iml
 .cache/
 venv*/
+*.out
+*.geany
