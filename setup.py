@@ -7,6 +7,7 @@ from setuptools import setup
 
 CURRENT_DIR = os.path.abspath(os.path.dirname(__file__))
 
+
 def get_reqs(*fns):
     lst = []
     for fn in fns:
@@ -16,6 +17,7 @@ def get_reqs(*fns):
                 continue
             lst.append(package.strip())
     return lst
+
 
 with open("godaddypy/__init__.py", "r") as f:
     version_match = re.search(r"^__version__\s*=\s*[\'\"]([^\'\"]*)[\'\"]", f.read(), re.MULTILINE)
@@ -37,8 +39,8 @@ setup(
     author_email="julian.calvin.coy@gmail.com",
     url="https://github.com/eXamadeus/godaddypy",
     packages=["godaddypy"],
-    install_requires=get_reqs('requirements.txt'),
-    tests_require=get_reqs('requirements-dev.txt'),
+    install_requires=get_reqs("requirements.txt"),
+    tests_require=get_reqs("requirements-dev.txt"),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
         "Intended Audience :: Developers",

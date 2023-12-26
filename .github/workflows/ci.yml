@@ -7,12 +7,12 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Black
-        uses: microsoft/action-python@0.7.0
+        uses: microsoft/action-python@0.7.2
         with:
           workdir: .
           black: true
       - name: Flake8
-        uses: microsoft/action-python@0.7.0
+        uses: microsoft/action-python@0.7.2
         with:
           workdir: .
           flake8: true
@@ -29,8 +29,8 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Pytest
-        uses: microsoft/action-python@0.7.0
+        uses: microsoft/action-python@0.7.2
         with:
           workdir: .
-          testing: true
+          pytest: true
           python_version: ${{ matrix.python-version }}
