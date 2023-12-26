@@ -3,6 +3,6 @@ callee>=0.2.1
 coverage>=4.4.1
 mock>=2.0.0
 pif==0.8.2
-pre-commit==3.5.0
+pre-commit==3.6.0
 pyproject-flake8==6.1.0
 pytest==7.4.3
