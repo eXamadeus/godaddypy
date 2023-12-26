@@ -6,10 +6,20 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v3
-      - name: Black
+      - name: Black (examples)
         uses: microsoft/action-python@0.7.2
         with:
-          workdir: .
+          workdir: examples
+          black: true
+      - name: Black (godaddypy)
+        uses: microsoft/action-python@0.7.2
+        with:
+          workdir: godaddypy
+          black: true
+      - name: Black (tests)
+        uses: microsoft/action-python@0.7.2
+        with:
+          workdir: tests
           black: true
       - name: Flake8
         uses: microsoft/action-python@0.7.2

@@ -50,7 +50,7 @@ test: ## Run tests via PyTest
 lint: ## Run linter
 	@$(VENV_RUN); python -m pflake8 --show-source
 
-format:
+format: ## Run formatting
 	@$(VENV_RUN); python -m black examples godaddypy tests
 
 clean: ## Clean up everything
