@@ -28,13 +28,11 @@ jobs:
           - "3.11"
     steps:
       - uses: actions/checkout@v3
-      - name: Install packages
+      - uses: actions/setup-python@v4
+        with:
+          python-version: ${{ matrix.python-version }}
+      - name: Pytest
         run: |
           make install-lib
           make install-dev
-      - name: Pytest
-        uses: microsoft/action-python@0.7.2
-        with:
-          workdir: .
-          pytest: true
-          python_version: ${{ matrix.python-version }}
+          make test
