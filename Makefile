@@ -51,7 +51,7 @@ lint: ## Run linter
 	@$(VENV_RUN); python -m pflake8 --show-source
 
 format: ## Run formatting
-	@$(VENV_RUN); python -m black examples godaddypy tests
+	@$(VENV_RUN); python -m black .
 
 clean: ## Clean up everything
 	rm -f .coverage
