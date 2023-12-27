@@ -45,7 +45,7 @@ publish: clean-dist dist  ## Publish the library to the central PyPi repository
 	$(VENV_RUN); twine upload dist/*
 
 test: ## Run tests via PyTest
-	@$(VENV_RUN); pytest
+	@$(VENV_RUN); python -m pytest
 
 lint: ## Run linter
 	@$(VENV_RUN); python -m pflake8 --show-source
