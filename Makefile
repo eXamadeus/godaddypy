@@ -24,7 +24,7 @@ freeze: ## Run pip freeze -l in the virtual environment
 	@$(VENV_RUN); $(PIP_CMD) freeze -l
 
 pre-commit: ## Install pre-commit hooks
-	@$(VENV_RUN); python -m pre_commit install > /dev/null
+	@$(VENV_RUN); pre-commit install > /dev/null
 
 install: ## Install full dependencies into venv
 	make install-lib
