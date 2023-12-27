@@ -5,6 +5,7 @@ from dataclasses import dataclass
 from os import environ, path, makedirs
 from pathlib import Path
 from sys import stdout
+from typing import Union
 
 import yaml
 from configloader import ConfigLoader
@@ -100,7 +101,7 @@ class Account(object):
         self.__api_secret = self.__api_secret or (config.secret if config else api_secret)
         self._config = config
 
-    def __parse_configuration(self) -> Configuration | None:
+    def __parse_configuration(self) -> Union[Configuration, None]:
         # Get config from environment
         env_config = self.__parse_env()
 
@@ -111,7 +112,7 @@ class Account(object):
         # See: https://specifications.freedesktop.org/basedir-spec/basedir-spec-latest.html
         return self.__parse_file()
 
-    def __parse_file(self) -> Configuration | None:
+    def __parse_file(self) -> Union[Configuration, None]:
         if not self or not path.exists(self._config_path):
             return None
 
@@ -131,7 +132,7 @@ class Account(object):
 
         return Configuration(key=key, secret=secret)
 
-    def __parse_env(self) -> Configuration | None:
+    def __parse_env(self) -> Union[Configuration, None]:
         config = ConfigLoader()
         config.update_from_env_namespace("GODADDY_API")
 

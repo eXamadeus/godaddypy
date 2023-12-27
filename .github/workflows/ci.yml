@@ -7,30 +7,40 @@ jobs:
     steps:
       - uses: actions/checkout@v3
       - name: Black
-        uses: microsoft/action-python@0.7.0
+        uses: microsoft/action-python@0.7.2
         with:
           workdir: .
           black: true
+          python_version: "3.12"
       - name: Flake8
-        uses: microsoft/action-python@0.7.0
+        uses: microsoft/action-python@0.7.2
         with:
           workdir: .
           flake8: true
+          python_version: "3.12"
 
   pytest:
     runs-on: ubuntu-latest
     strategy:
       matrix:
         python-version:
-          - "3.8"
           - "3.9"
           - "3.10"
           - "3.11"
+          - "3.12"
     steps:
       - uses: actions/checkout@v3
-      - name: Pytest
-        uses: microsoft/action-python@0.7.0
+      - uses: actions/setup-python@v5
         with:
-          workdir: .
-          testing: true
-          python_version: ${{ matrix.python-version }}
+          python-version: ${{ matrix.python-version }}
+          cache: 'pip'
+          cache-dependency-path: |
+            **/requirements.txt
+            **/requirements-dev.txt
+      - name: Install deps
+        run: |
+          pip install -r requirements.txt
+          pip install -r requirements-dev.txt
+      - name: Pytest
+        run: |
+          python -m pytest
