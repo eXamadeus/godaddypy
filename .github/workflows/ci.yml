@@ -11,11 +11,13 @@ jobs:
         with:
           workdir: .
           black: true
+          python_version: "3.12"
       - name: Flake8
         uses: microsoft/action-python@0.7.2
         with:
           workdir: .
           flake8: true
+          python_version: "3.12"
 
   pytest:
     runs-on: ubuntu-latest
@@ -39,6 +41,9 @@ jobs:
         run: |
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
-      - name: Run pytest
-        run: |
-          pytest
+      - name: Pytest
+        uses: microsoft/action-python@0.7.2
+        with:
+          workdir: .
+          pytest: true
+          python_version: ${{ matrix.python-version }}
