@@ -42,8 +42,5 @@ jobs:
           pip install -r requirements.txt
           pip install -r requirements-dev.txt
       - name: Pytest
-        uses: microsoft/action-python@0.7.2
-        with:
-          workdir: .
-          pytest: true
-          python_version: ${{ matrix.python-version }}
+        run: |
+          python -m pytest
