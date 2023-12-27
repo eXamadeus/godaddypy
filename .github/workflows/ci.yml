@@ -31,7 +31,12 @@ jobs:
       - uses: actions/setup-python@v4
         with:
           python-version: ${{ matrix.python-version }}
-      - name: Pytest
+      - name: Install deps
         run: |
           make install
-          make test
+      - name: Pytest
+        uses: microsoft/action-python@0.7.2
+        with:
+          workdir: .
+          pytest: true
+          python_version: ${{ matrix.python-version }}
