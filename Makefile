@@ -21,15 +21,15 @@ $(VENV_ACTIVATE): setup.py setup.cfg
 venv: $(VENV_ACTIVATE) ## Create a new (empty) virtual environment
 
 freeze: ## Run pip freeze -l in the virtual environment
-	@$(VENV_RUN); pip freeze -l
+	@$(VENV_RUN); $(PIP_CMD) freeze -l
 
 pre-commit: ## Install pre-commit hooks
-	@pre-commit install > /dev/null
+	@$(VENV_RUN); python -m pre_commit install > /dev/null
 
 install: ## Install full dependencies into venv
 	make install-lib
 	make install-dev
-	@make pre-commit
+	make pre-commit
 
 install-dev: venv ## Install requirements for development into venv
 	@$(VENV_RUN); $(PIP_CMD) install -r requirements-dev.txt
@@ -39,7 +39,7 @@ install-lib: venv ## Install requirements for godaddypy into venv
 
 dist: ## Build distributions
 	@$(VENV_RUN); pip install --upgrade twine build;
-	python -m build
+	@$(VENV_RUN); python -m build
 
 publish: clean-dist dist  ## Publish the library to the central PyPi repository
 	$(VENV_RUN); twine upload dist/*
