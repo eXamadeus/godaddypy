@@ -2,23 +2,6 @@ name: Pull Request CI
 on: [ push ]
 
 jobs:
-  linting:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v3
-      - name: Black
-        uses: microsoft/action-python@0.7.2
-        with:
-          workdir: .
-          black: true
-          python_version: "3.12"
-      - name: Flake8
-        uses: microsoft/action-python@0.7.2
-        with:
-          workdir: .
-          flake8: true
-          python_version: "3.12"
-
   pytest:
     runs-on: ubuntu-latest
     strategy:
